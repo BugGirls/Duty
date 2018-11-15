@@ -16,7 +16,7 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 用户名和密码随便填。</p>
+                <p class="login-tips">{{ loginTips }}</p>
             </el-form>
         </div>
     </div>
@@ -26,9 +26,10 @@
     export default {
         data: function(){
             return {
+                loginTips: '',
                 ruleForm: {
-                    username: 'admin',
-                    password: '123123'
+                    username: '',
+                    password: ''
                 },
                 rules: {
                     username: [
@@ -44,9 +45,28 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        localStorage.setItem('ms_username',this.ruleForm.username);
-                        this.$router.push('/');
+                        let postData = this.$qs.stringify({
+                            username: this.ruleForm.username,
+                            password: this.ruleForm.password
+                        })
+                        this.$axios({
+                            method: 'post',
+                            url: '/api/login.json',
+                            data: postData
+                        }).then((res)=>{
+                            if (res.data.success) {
+                                localStorage.setItem('ms_username', res.data.data.username)
+                                console.log(res.data.data.username)
+                                this.$router.push('/');
+                            } else {
+                                this.loginTips = res.data.msg
+                            }
+                        }, (err) => {
+                            this.loginTips = '请求失败'
+                            console.log(err)
+                        });
                     } else {
+                        this.loginTips = '参数错误'
                         console.log('error submit!!');
                         return false;
                     }

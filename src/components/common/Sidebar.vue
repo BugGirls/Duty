@@ -44,6 +44,37 @@
                         title: '系统首页'
                     },
                     {
+                        icon: 'el-icon-lx-remind',
+                        index: '1',
+                        title: '值班管理',
+                        subs: [
+                            {
+                                index: 'employee',
+                                title: '值班人员'
+                            },
+                            {
+                                index: 'duty-info',
+                                title: '值班表'
+                            },
+                            {
+                                index: 'shift-duty',
+                                title: '交接班'
+                            },
+                            {
+                                index: 'logbook',
+                                title: '值班日志'
+                            },
+                            {
+                                index: 'remind',
+                                title: '值班提醒'
+                            },
+                            {
+                                index: 'shift-apply',
+                                title: '换班申请'
+                            }
+                        ]
+                    },
+                    {
                         icon: 'el-icon-lx-cascades',
                         index: 'table',
                         title: '基础表格'

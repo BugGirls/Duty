@@ -129,6 +129,7 @@
                 this.$axios.post(this.url, {
                     page: this.cur_page
                 }).then((res) => {
+                    console.log(res.data.list)
                     this.tableData = res.data.list;
                 })
             },

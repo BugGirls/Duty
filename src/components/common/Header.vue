@@ -50,14 +50,14 @@
             return {
                 collapse: true,
                 fullscreen: false,
-                name: 'linxin',
+                name: 'empress',
                 message: 2
             }
         },
         computed:{
-            username(){
-                let username = localStorage.getItem('ms_username');
-                return username ? username : this.name;
+            username() {
+                let username = localStorage.getItem('ms_username')
+                return username ? username : this.name
             }
         },
         methods:{

@@ -84,7 +84,38 @@ export default new Router({
                     path: '/403',
                     component: resolve => require(['../components/page/403.vue'], resolve),
                     meta: { title: '403' }
+                },
+                {
+                    path: '/employee',
+                    component: resolve => require(['../components/page/dutyManager/Employee.vue'], resolve),
+                    meta: { title: '值班人员' }
+                },
+                {
+                    path: '/duty-info',
+                    component: resolve => require(['../components/page/dutyManager/DutyInfo.vue'], resolve),
+                    meta: { title: '值班表' }
+                },
+                {
+                    path: '/shift-duty',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '交接班' }
+                },
+                {
+                    path: '/logbook',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '值班日志' }
+                },
+                {
+                    path: '/remind',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '值班提醒' }
+                },
+                {
+                    path: '/shift-apply',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '换班申请' }
                 }
+                
             ]
         },
         {
