@@ -26,7 +26,7 @@
                         <img :src="scope.row.photoUrl" class="head_pic"/>
                     </template>
                 </el-table-column>
-                <el-table-column prop="name" label="姓名" width="120"></el-table-column>
+                <el-table-column prop="name" label="姓名" width="200"></el-table-column>
                 <el-table-column prop="mobile" label="手机号"></el-table-column>
                 <el-table-column prop="status" label="状态">
                     <template slot-scope="scope">
@@ -214,7 +214,6 @@
                     let page = res.data.data
                     this.tableData = page.list
                     this.total = page.total
-                    console.log(page)
                 })
             },
             search() {

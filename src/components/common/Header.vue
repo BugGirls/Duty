@@ -64,8 +64,18 @@
             // 用户名下拉菜单选择事件
             handleCommand(command) {
                 if(command == 'loginout'){
-                    localStorage.removeItem('ms_username')
-                    this.$router.push('/login');
+                    this.$axios({
+                        method: 'post',
+                        url: '/api/logout.json'
+                    }).then((res)=>{
+                        if(res.data.success) {
+                            localStorage.removeItem('ms_username')
+                            this.$router.push('/login')
+                        }
+                    }, (err) => {
+                        this.$message.error(` 请求失败 `)
+                        console.log(err)
+                    })
                 }
             },
             // 侧边栏折叠

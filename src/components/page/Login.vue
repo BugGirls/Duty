@@ -56,7 +56,6 @@
                         }).then((res)=>{
                             if (res.data.success) {
                                 localStorage.setItem('ms_username', res.data.data.username)
-                                console.log(res.data.data.username)
                                 this.$router.push('/');
                             } else {
                                 this.loginTips = res.data.msg
@@ -67,7 +66,6 @@
                         });
                     } else {
                         this.loginTips = '参数错误'
-                        console.log('error submit!!');
                         return false;
                     }
                 });

@@ -13,6 +13,26 @@ Vue.use(ElementUI, { size: 'small' });
 Vue.prototype.$axios = axios;
 Vue.prototype.$qs = qs
 
+// 请求的响应方法
+axios.interceptors.response.use(
+    response => {
+        if(response.data.code === 100) {
+            if (response.data.msg === '需要登录') {
+                router.push({
+                    path: '/login',
+                    query: {redirect: router.history.current.fullPath}
+                })
+            }
+            // 显示错误信息
+            return Promise.reject(response.data)
+        }
+    if(response.data.code === 0){
+      return response;
+    }
+}, error => {
+    return Promise.reject(error.response.data)
+})
+
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
     const role = localStorage.getItem('ms_username')
