@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-calendar"></i> 值班管理</el-breadcrumb-item>
+                <el-breadcrumb-item :to="{ path: '/duty-manager' }"><i class="el-icon-lx-calendar"></i> 值班管理</el-breadcrumb-item>
                 <el-breadcrumb-item>值班人员</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -128,10 +128,8 @@
         components: {
             VCropImg
         },
-        name: 'basetable',
         data() {
             return {
-                url: '/api/employee/page.json',
                 tableData: [],
                 pageNum: 1,
                 pageSize: 10,
@@ -252,33 +250,37 @@
             },
             // 批量删除
             batchDel() {
-                let idListTemp = []
-                this.multipleSelection.forEach(item => {
-                    idListTemp.push(item.id)
-                })
+                if (this.multipleSelection.length > 0) {
+                    let idListTemp = []
+                    this.multipleSelection.forEach(item => {
+                        idListTemp.push(item.id)
+                    })
 
-                let postData = this.$qs.stringify({
-                    idList: idListTemp.join(',')
-                })
-                this.$axios({
-                    method: 'post',
-                    url: '/api/employee/batch_delete.json',
-                    data: postData
-                }).then((res)=>{
-                    if (res.data.success) {
-                        let str = ''
-                        this.del_list = this.del_list.concat(this.multipleSelection)
-                        for (let i = 0; i < this.multipleSelection.length; i++) {
-                            str += this.multipleSelection[i].name + ' '
+                    let postData = this.$qs.stringify({
+                        idList: idListTemp.join(',')
+                    })
+                    this.$axios({
+                        method: 'post',
+                        url: '/api/employee/batch_delete.json',
+                        data: postData
+                    }).then((res)=>{
+                        if (res.data.success) {
+                            let str = ''
+                            this.del_list = this.del_list.concat(this.multipleSelection)
+                            for (let i = 0; i < this.multipleSelection.length; i++) {
+                                str += this.multipleSelection[i].name + ' '
+                            }
+                            this.$message.success('删除了' + str)
+                            this.multipleSelection = []
+                        } else {
+                            this.$message.error(` ${res.data.msg} `)
                         }
-                        this.$message.success('删除了' + str)
-                        this.multipleSelection = []
-                    } else {
-                        this.$message.error(` ${res.data.msg} `)
-                    }
-                }, (err) => {
-                    this.$message.error(` 请求失败 `)
-                })
+                    }, (err) => {
+                        this.$message.error(` 请求失败 `)
+                    })
+                } else {
+                    this.$message.error(` 请选择删除项 `)
+                }
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
@@ -333,9 +335,9 @@
                             data: postData
                         }).then((res)=>{
                             if (res.data.success) {
-                                this.$set(this.tableData, this.idx, this.form);
-                                this.editVisible = false;
-                                this.$message.success(`修改第 ${this.idx+1} 行成功`);
+                                this.$set(this.tableData, this.idx, this.form)
+                                this.editVisible = false
+                                this.$message.success(`修改第 ${this.idx+1} 行成功`)
                             } else {
                                 this.$message.error(` ${res.data.msg} `)
                             }

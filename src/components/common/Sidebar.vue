@@ -44,7 +44,7 @@
                         title: '系统首页'
                     },
                     {
-                        icon: 'el-icon-lx-remind',
+                        icon: 'el-icon-bell',
                         index: '1',
                         title: '值班管理',
                         subs: [
@@ -53,8 +53,18 @@
                                 title: '值班人员'
                             },
                             {
-                                index: 'duty-info',
-                                title: '值班表'
+                                index: '1-2',
+                                title: '值班表',
+                                subs: [
+                                    {
+                                        index: 'generator-duty',
+                                        title: '生成值班表'
+                                    },
+                                    {
+                                        index: 'duty-info',
+                                        title: '查看值班表'
+                                    },
+                                ]
                             },
                             {
                                 index: 'shift-duty',
@@ -65,6 +75,20 @@
                                 title: '值班日志'
                             },
                             {
+                                index: '1-5',
+                                title: '值班巡检',
+                                subs: [
+                                    {
+                                        index: 'inspection',
+                                        title: '巡检管理'
+                                    },
+                                    {
+                                        index: 'inspection-item',
+                                        title: '巡检项配置'
+                                    },
+                                ]
+                            },
+                            {
                                 index: 'remind',
                                 title: '值班提醒'
                             },
@@ -73,6 +97,45 @@
                                 title: '换班申请'
                             }
                         ]
+                    },
+                    {
+                        icon: 'el-icon-lx-file',
+                        index: 'datum',
+                        title: '资料管理'
+                    },
+                    {
+                        icon: 'el-icon-tickets',
+                        index: '2',
+                        title: '题库管理',
+                        subs: [
+                            {
+                                index: 'question_category',
+                                title: '试题类型'
+                            },
+                            {
+                                index: 'question',
+                                title: '试题管理'
+                            },
+                            {
+                                index: 'answer',
+                                title: '网上作答'
+                            },
+                        ]
+                    },
+                    {
+                        icon: 'el-icon-lx-forward',
+                        index: 'dispatch',
+                        title: '调度管理'
+                    },
+                    {
+                        icon: 'el-icon-lx-cascades',
+                        index: 'device',
+                        title: '设备管理'
+                    },
+                    {
+                        icon: 'el-icon-lx-cascades',
+                        index: 'permission',
+                        title: '权限管理'
                     },
                     {
                         icon: 'el-icon-lx-cascades',

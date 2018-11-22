@@ -54,6 +54,7 @@
                             url: '/api/login.json',
                             data: postData
                         }).then((res)=>{
+                            console.log(res)
                             if (res.data.success) {
                                 localStorage.setItem('ms_username', res.data.data.username)
                                 this.$router.push('/');

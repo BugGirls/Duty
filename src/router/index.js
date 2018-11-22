@@ -106,6 +106,16 @@ export default new Router({
                     meta: { title: '值班日志' }
                 },
                 {
+                    path: '/inspection',
+                    component: resolve => require(['../components/page/Permission.vue'], resolve),
+                    meta: { title: '值班巡检' }
+                },
+                {
+                    path: '/inspection-item',
+                    component: resolve => require(['../components/page/dutyManager/InspectionItem.vue'], resolve),
+                    meta: { title: '值班巡检项' }
+                },
+                {
                     path: '/remind',
                     component: resolve => require(['../components/page/Permission.vue'], resolve),
                     meta: { title: '值班提醒' }
@@ -114,8 +124,53 @@ export default new Router({
                     path: '/shift-apply',
                     component: resolve => require(['../components/page/Permission.vue'], resolve),
                     meta: { title: '换班申请' }
+                },
+                {
+                    path: '/datum',
+                    component: resolve => require(['../components/page/datumManager/DatumInfo.vue'], resolve),
+                    meta: { title: '资料管理' }
+                },
+                {
+                    path: '/question_category',
+                    component: resolve => require(['../components/page/questionManager/QuestionCategory.vue'], resolve),
+                    meta: { title: '试题类型' }
+                },
+                {
+                    path: '/question',
+                    component: resolve => require(['../components/page/questionManager/Question.vue'], resolve),
+                    meta: { title: '试题管理' }
+                },
+                {
+                    path: '/answer',
+                    component: resolve => require(['../components/page/questionManager/Answer.vue'], resolve),
+                    meta: { title: '网上作答' }
+                },
+                {
+                    path: '/generator-duty',
+                    component: resolve => require(['../components/page/dutyManager/GeneratorDuty.vue'], resolve),
+                    meta: { title: '生成值班表' }
+                },
+                {
+                    path: '/duty-info',
+                    component: resolve => require(['../components/page/dutyManager/DutyInfo.vue'], resolve),
+                    meta: { title: '查看值班表' }
+                },
+                {
+                    path: '/dispatch',
+                    component: resolve => require(['../components/page/dispatchManager/Dispatch.vue'], resolve),
+                    meta: { title: '调度管理' }
+                },
+                {
+                    path: '/device',
+                    component: resolve => require(['../components/page/deviceManager/Device.vue'], resolve),
+                    meta: { title: '设备管理' }
+                },
+                {
+                    path: '/permission',
+                    component: resolve => require(['../components/page/permissionManager/Acl.vue'], resolve),
+                    meta: { title: '权限管理' }
                 }
-                
+
             ]
         },
         {
