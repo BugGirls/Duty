@@ -2,7 +2,7 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item :to="{ path: '/duty-manager' }"><i class="el-icon-lx-calendar"></i> 值班管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-bell"></i> 值班管理</el-breadcrumb-item>
                 <el-breadcrumb-item>值班人员</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -15,18 +15,23 @@
                 <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-lx-search" @click="search">搜索</el-button>
                 <el-button-group>
-                    <el-button type="primary" icon="el-icon-lx-delete" class="handle-del mr10" @click="batchDel">批量删除</el-button>
                     <el-button type="primary" icon="el-icon-lx-add" @click="handleInsert()">新增人员</el-button>
                 </el-button-group>
             </div>
             <el-table :data="data" border class="table" ref="multipleTable" @selection-change="handleSelectionChange">
-                <el-table-column type="selection" width="55" align="center"></el-table-column>
+                <el-table-column prop="id" label="ID" width="100"></el-table-column>
                 <el-table-column label="头像" width="140" prop="photoUrl">
                     <template slot-scope="scope">
                         <img :src="scope.row.photoUrl" class="head_pic"/>
                     </template>
                 </el-table-column>
                 <el-table-column prop="name" label="姓名" width="200"></el-table-column>
+                <el-table-column prop="gender" label="性别">
+                    <template slot-scope="scope">
+                        <el-tag v-show="scope.row.gender === '1'">男</el-tag>
+                        <el-tag v-show="scope.row.gender === '0'" type="danger">女</el-tag>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="mobile" label="手机号"></el-table-column>
                 <el-table-column prop="status" label="状态">
                     <template slot-scope="scope">
@@ -36,8 +41,8 @@
                 </el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-edit" v-show="scope.row.updateBtnShow" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" class="red" v-show="scope.row.deleteBtnShow" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -47,7 +52,7 @@
         </div>
 
         <!-- 新增弹出框 -->
-        <el-dialog title="新增" :visible.sync="insertVisible" width="33%">
+        <el-dialog title="新增" :visible.sync="insertVisible" width="35%">
             <el-form ref="form" label-position="right" :rules="rules" :model="form" label-width="80px">
                 <el-form-item label="头像">
                     <v-crop-img @on-over="uploadImage"></v-crop-img>
@@ -79,7 +84,7 @@
         </el-dialog>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑" :visible.sync="editVisible" width="30%">
+        <el-dialog title="编辑" :visible.sync="editVisible" width="35%">
             <el-form ref="form" label-position="right" :rules="rules" :model="form" label-width="80px">
                 <el-form-item label="头像">
                     <v-crop-img :photoUrl="form.photoUrl" @on-over="uploadImage"></v-crop-img>
@@ -123,6 +128,7 @@
 
 <script>
     import VCropImg from '../../common/CropImg'
+    import _ from 'lodash'
 
     export default {
         components: {
@@ -134,11 +140,9 @@
                 pageNum: 1,
                 pageSize: 10,
                 total: 0,
-                multipleSelection: [],
                 select_type: '',
                 select_word: '',
                 del_id: '',
-                del_list: [],
                 is_search: false,
                 insertVisible: false,
                 editVisible: false,
@@ -163,30 +167,15 @@
                 }
             }
         },
-        created() {
+        mounted() {
             this.getData()
         },
         computed: {
             data() {
                 return this.tableData.filter((d) => {
-                    let is_del = false;
                     d.status = d.status.toString()
                     d.gender = d.gender.toString()
-                    for (let i = 0; i < this.del_list.length; i++) {
-                        if (d.name === this.del_list[i].name) {
-                            is_del = true;
-                            break;
-                        }
-                    }
-                    if (!is_del) {
-                        // if (d.address.indexOf(this.select_cate) > -1 &&
-                        //     (d.name.indexOf(this.select_word) > -1 ||
-                        //         d.address.indexOf(this.select_word) > -1)
-                        // ) {
-                        //     return d;
-                        // }
-                        return d;
-                    }
+                    return d
                 })
             }
         },
@@ -206,12 +195,16 @@
                 })
                 this.$axios({
                     method: 'post',
-                    url: '/api/employee/page_by_param.json',
+                    url: '/employee/page_by_param.json',
                     data: postData
                 }).then((res) => {
-                    let page = res.data.data
-                    this.tableData = page.list
-                    this.total = page.total
+                    if (res.data.success) {
+                        let page = res.data.data
+                        this.tableData = page.list
+                        this.total = page.total
+                    } else {
+                        this.$message.error(` ${res.data.msg} `)
+                    }
                 })
             },
             search() {
@@ -226,7 +219,8 @@
             handleInsert() {
                 this.form = {
                     gender: '1',
-                    status: '1'
+                    status: '1',
+                    photoUrl: ''
                 }
                 this.insertVisible = true
             },
@@ -248,40 +242,6 @@
                 this.del_id = row.id
                 this.delVisible = true
             },
-            // 批量删除
-            batchDel() {
-                if (this.multipleSelection.length > 0) {
-                    let idListTemp = []
-                    this.multipleSelection.forEach(item => {
-                        idListTemp.push(item.id)
-                    })
-
-                    let postData = this.$qs.stringify({
-                        idList: idListTemp.join(',')
-                    })
-                    this.$axios({
-                        method: 'post',
-                        url: '/api/employee/batch_delete.json',
-                        data: postData
-                    }).then((res)=>{
-                        if (res.data.success) {
-                            let str = ''
-                            this.del_list = this.del_list.concat(this.multipleSelection)
-                            for (let i = 0; i < this.multipleSelection.length; i++) {
-                                str += this.multipleSelection[i].name + ' '
-                            }
-                            this.$message.success('删除了' + str)
-                            this.multipleSelection = []
-                        } else {
-                            this.$message.error(` ${res.data.msg} `)
-                        }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
-                    })
-                } else {
-                    this.$message.error(` 请选择删除项 `)
-                }
-            },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
@@ -298,18 +258,16 @@
                         })
                         this.$axios({
                             method: 'post',
-                            url: '/api/employee/save.json',
+                            url: '/employee/save.json',
                             data: postData
                         }).then((res)=>{
                             if (res.data.success) {
                                 this.insertVisible = false
-                                this.$message.success(`添加人员 ${this.form.name} 成功`)
+                                this.$message.success(`值班人员 ${this.form.name} 添加成功`)
                                 this.getData()
                             } else {
                                 this.$message.error(` ${res.data.msg} `)
                             }
-                        }, (err) => {
-                            this.$message.error(` 请求失败 `)
                         })
                     } else {
                         this.$message.error(` 字段填写不完整 `)
@@ -331,19 +289,16 @@
                         })
                         this.$axios({
                             method: 'post',
-                            url: '/api/employee/update.json',
+                            url: '/employee/update.json',
                             data: postData
                         }).then((res)=>{
                             if (res.data.success) {
-                                this.$set(this.tableData, this.idx, this.form)
                                 this.editVisible = false
-                                this.$message.success(`修改第 ${this.idx+1} 行成功`)
+                                this.$message.success(`值班人员 ${this.form.name} 修改成功`)
+                                this.getData()
                             } else {
                                 this.$message.error(` ${res.data.msg} `)
                             }
-                        }, (err) => {
-                            this.$message.error(` 请求失败 `)
-                            console.log(err)
                         })
                     } else {
                         this.loginTips = '参数错误'
@@ -359,18 +314,16 @@
                 })
                 this.$axios({
                     method: 'post',
-                    url: '/api/employee/delete.json',
+                    url: '/employee/delete.json',
                     data: postData
                 }).then((res)=>{
                     if (res.data.success) {
-                        this.tableData.splice(this.idx, 1)
-                        this.$message.success('删除成功')
+                        this.$message.success('值班人员删除成功')
                         this.delVisible = false
+                        this.getData()
                     } else {
                         this.$message.error(` ${res.data.msg} `)
                     }
-                }, (err) => {
-                    this.$message.error(` 请求失败 `)
                 })
             },
             // 上传图片
@@ -380,7 +333,7 @@
                 })
                 this.$axios({
                     method: 'post',
-                    url: '/api/file/upload_base64.json',
+                    url: '/file/upload_base64.json',
                     data: postData
                 }).then((res)=>{
                     if (res.data.success) {
@@ -388,8 +341,6 @@
                     } else {
                         this.$message.error(` ${res.data.msg} `)
                     }
-                }, (err) => {
-                    this.$message.error(` 请求失败 `)
                 })
             }
         }
@@ -422,5 +373,6 @@
     }
     .head_pic {
         border-radius: 10px;
+        width: 120px;
     }
 </style>

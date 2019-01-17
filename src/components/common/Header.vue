@@ -14,28 +14,28 @@
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
-                <div class="btn-bell">
+                <!-- <div class="btn-bell">
                     <el-tooltip effect="dark" :content="message?`有${message}条未读消息`:`消息中心`" placement="bottom">
                         <router-link to="/tabs">
                             <i class="el-icon-bell"></i>
                         </router-link>
                     </el-tooltip>
                     <span class="btn-bell-badge" v-if="message"></span>
-                </div>
+                </div> -->
                 <!-- 用户头像 -->
-                <div class="user-avator"><img src="static/img/img.jpg"></div>
+                <!-- <div class="user-avator"><img src="static/img/img.jpg"></div> -->
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" trigger="click" @command="handleCommand">
                     <span class="el-dropdown-link">
                         {{username}} <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <a href="http://blog.gdfengshuo.com/about/" target="_blank">
+                        <!-- <a href="http://blog.gdfengshuo.com/about/" target="_blank">
                             <el-dropdown-item>关于作者</el-dropdown-item>
                         </a>
                         <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
                             <el-dropdown-item>项目仓库</el-dropdown-item>
-                        </a>
+                        </a> -->
                         <el-dropdown-item divided  command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -45,6 +45,7 @@
 </template>
 <script>
     import bus from '../common/bus';
+
     export default {
         data() {
             return {
@@ -56,21 +57,24 @@
         },
         computed:{
             username() {
-                let username = localStorage.getItem('ms_username')
+                let username = localStorage.getItem('username')
                 return username ? username : this.name
             }
         },
         methods:{
             // 用户名下拉菜单选择事件
             handleCommand(command) {
-                if(command == 'loginout'){
+                if(command == 'loginout') {
                     this.$axios({
                         method: 'post',
-                        url: '/api/logout.json'
+                        url: '/logout.json'
                     }).then((res)=>{
                         if(res.data.success) {
-                            localStorage.removeItem('ms_username')
+                            localStorage.removeItem('username')
+                            localStorage.removeItem('acls')
+                            localStorage.removeItem('roles')
                             this.$router.push('/login')
+                            webSocket.close()
                         }
                     }, (err) => {
                         this.$message.error(` 请求失败 `)

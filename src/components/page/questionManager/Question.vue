@@ -112,8 +112,7 @@
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="insertVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveInsert('form')">确 定</el-button>
+                <el-button @click="viewVisible = false">取 消</el-button>
             </span>
         </el-dialog>
 
@@ -161,21 +160,18 @@ export default {
             },
             rules: {
                 categoryId: [
-                    { required: true, message: '请选择试题类别', trigger: 'blur' }
+                    { required: true, message: '请选择试题分类', trigger: 'blur' }
                 ],
                 subject: [
-                    { required: true, message: '请输入题目', trigger: 'blur' }
+                    { required: true, message: '请输入试题题目', trigger: 'blur' }
                 ],
                 answer: [
-                    { required: true, message: '请输入答案', trigger: 'blur' }
-                ],
-                status: [
-                    { required: true, message: '请选择状态', trigger: 'blur' }
-                ],
+                    { required: true, message: '请输入试题答案', trigger: 'blur' }
+                ]
             }
         }
     },
-    created() {
+    mounted() {
         this.getData()
         this.getCategory()
     },
@@ -201,14 +197,12 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/api/question/page_by_param.json',
+                url: '/question/page_by_param.json',
                 data: postData
             }).then((res) => {
                 let page = res.data.data
                 this.tableData = page.list
                 this.total = page.total
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         },
         getCategory() {
@@ -217,7 +211,7 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/api/questionCategory/get_list_by_param.json',
+                url: '/questionCategory/get_list_by_param.json',
                 data: postData
             }).then((res) => {
                 if (res.data.success) {
@@ -231,12 +225,19 @@ export default {
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         },
         handleInsert() {
             this.insertVisible = true
+            this.questionForm = {
+                id: '',
+                categoryId: '',
+                categoryName: '',
+                subject: '',
+                answer: '',
+                status: '1',
+                createTime: ''
+            }
         },
         saveInsert(form) {
             this.$refs[form].validate((valid) => {
@@ -249,7 +250,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/question/save.json',
+                        url: '/question/save.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -259,8 +260,6 @@ export default {
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -297,7 +296,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/question/update.json',
+                        url: '/question/update.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -307,8 +306,6 @@ export default {
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -323,7 +320,6 @@ export default {
         },
         handleView(index, row) {
             const item = this.tableData[index]
-            console.log(item)
             this.questionForm = {
                 id: item.id,
                 categoryId: item.categoryId,
@@ -346,7 +342,7 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/api/question/delete.json',
+                url: '/question/delete.json',
                 data: postData
             }).then((res)=>{
                 if (res.data.success) {
@@ -356,8 +352,6 @@ export default {
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         }
     }

@@ -25,7 +25,7 @@ export default {
     props: {
         photoUrl: {
             type: String,
-            default: '../../../static/img/defatul_img.jpg'
+            default: require('../../../static/img/defatul_img.jpg')
         }
     },
     data: function() {
@@ -33,7 +33,7 @@ export default {
             imgSrc: '',
             cropImg: '',
             dialogVisible: false,
-            defaultSrc: '../../../static/img/defatul_img.jpg',
+            defaultSrc: require('../../../static/img/defatul_img.jpg'),
         }
     },
     created() {

@@ -1,10 +1,11 @@
-// 设备管理
+// 设备管理 -> 设备信息
 
 <template>
     <div>
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item><i class="el-icon-lx-record"></i> 设备管理</el-breadcrumb-item>
+                <el-breadcrumb-item>设备信息</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
@@ -16,12 +17,13 @@
                             <span>设备分类</span>
                             <el-button type="primary" style="float: right" icon="el-icon-lx-add" size="mini" @click="handleCategoryInsert()">添加分类</el-button>
                         </div>
-                        <el-tree :data="nodeData" :props="defaultProps" @node-click="handleNodeClick" 
+                        <el-tree :data="categoryTree" :props="defaultProps" @node-click="handleNodeClick"
                         :default-expand-all="true" :highlight-current="true" :expand-on-click-node="false">
                             <span class="custom-tree-node" slot-scope="{ node, data }">
                                 <span>{{ node.label }}</span>
                                 <span>
                                     <el-button type="text" icon="el-icon-edit" size="mini" @click="handleCategoryEdit(data)"></el-button>
+                                    <el-button type="text" icon="el-icon-delete" class="red" size="mini" @click="handleCategoryDelete(data)"></el-button>
                                 </span>
                             </span>
                         </el-tree>
@@ -36,10 +38,10 @@
                         </div>
                         <el-table border :data="data" class="table" ref="multipleTable">
                             <el-table-column prop="id" label="ID"></el-table-column>
-                            <el-table-column prop="name" label="设备名称"></el-table-column>
+                            <el-table-column prop="name" label="设备名称" width="200"></el-table-column>
                             <el-table-column prop="brand" label="品牌"></el-table-column>
                             <el-table-column prop="model" label="型号"></el-table-column>
-                            <el-table-column prop="serial" label="序列号"></el-table-column>
+                            <el-table-column prop="serial" label="序列号" width="150"></el-table-column>
                             <el-table-column prop="area" label="存放地"></el-table-column>
                             <el-table-column prop="buyTime" label="购买日期" width="150"></el-table-column>
                             <el-table-column prop="startTime" label="启用日期" width="150"></el-table-column>
@@ -70,8 +72,10 @@
         <!-- 新增设备类别 -->
         <el-dialog title="添加分类" :visible.sync="insertCategoryVisible" width="33%">
             <el-form ref="form" label-position="right" :rules="categoryRules" :model="categoryForm" label-width="100px">
-                <el-form-item label="选择分类" prop="categoryId">
-                    <category-select :options="options" @on-change="getCategoryId($event)"></category-select>
+                <el-form-item label="选择分类" prop="parentId">
+                    <el-select v-model="categoryForm.parentId" clearable placeholder="请选择设备类别">
+                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="名称" prop="title">
                     <el-input v-model="categoryForm.title"></el-input>
@@ -95,8 +99,10 @@
         <!-- 修改设备类别 -->
         <el-dialog title="修改分类" :visible.sync="editCategoryVisible" width="33%">
             <el-form ref="form" label-position="right" :rules="categoryRules" :model="categoryForm" label-width="100px">
-                <el-form-item label="选择分类" prop="categoryId">
-                    <category-select :options="options" :defaultValue="defaultCategory" @on-change="getCategoryId($event)"></category-select>
+                <el-form-item label="选择分类" prop="parentId">
+                    <el-select v-model="categoryForm.parentId" clearable placeholder="请选择设备类别">
+                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="名称" prop="title">
                     <el-input v-model="categoryForm.title"></el-input>
@@ -117,11 +123,22 @@
             </span>
         </el-dialog>
 
+        <!-- 删除设备类别 -->
+        <el-dialog title="删除设备类别" :visible.sync="deleteCategoryVisible" width="300px" center>
+            <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="deleteCategoryVisible = false">取 消</el-button>
+                <el-button type="primary" @click="categoryDelete">确 定</el-button>
+            </span>
+        </el-dialog>
+
         <!-- 新增设备 -->
         <el-dialog title="添加设备信息" :visible.sync="insertDeviceVisible" width="35%">
             <el-form ref="form" label-position="right" :rules="deviceRules" :model="deviceForm" label-width="100px">
                 <el-form-item label="选择分类" prop="categoryId">
-                    <category-select :options="options" :defaultValue="defaultCategory" @on-change="getCategoryId($event)"></category-select>
+                    <el-select v-model="deviceForm.categoryId" clearable placeholder="请选择设备类别">
+                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="deviceForm.name" placeholder="输入设备名称"></el-input>
@@ -164,7 +181,9 @@
         <el-dialog title="修改设备信息" :visible.sync="updateDeviceVisible" width="33%">
             <el-form ref="form" label-position="right" :rules="deviceRules" :model="deviceForm" label-width="100px">
                 <el-form-item label="选择分类" prop="categoryId">
-                    <category-select :options="options" :defaultValue="defaultCategory" @on-change="getCategoryId($event)"></category-select>
+                    <el-select v-model="deviceForm.categoryId" clearable placeholder="请选择设备类别">
+                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="deviceForm.name" placeholder="输入设备名称"></el-input>
@@ -215,7 +234,6 @@
 </template>
 
 <script>
-import CategorySelect from '../../common/Selection'
 import _ from 'lodash'
 
 const keyMap = {  
@@ -225,25 +243,22 @@ const keyMap = {
 export default {
     data() {
         return {
-            categoryList: [],
-            nodeData: [],
+            categoryTree: [],
             tableData: [],
             options: [],
-            defaultCategory: '',
-            categoryId: '',
             pageNum: 1,
             pageSize: 10, 
             total: 0,
             insertCategoryVisible: false,
             editCategoryVisible: false,
+            deleteCategoryVisible: false,
             insertDeviceVisible: false,
             updateDeviceVisible: false,
             delDeviceVisible: false,
-            del_id: '',
             idx: -1,
             categoryForm: {
                 id: '',
-                categoryId: '',
+                parentId: '',
                 title: '',
                 seq: 1,
                 status: '1'
@@ -301,94 +316,26 @@ export default {
         }
     },
     created() {
-        this.getNodeData()
+        this.loadCategoryTree()
     },
     computed: {
         data() {
             return this.tableData.filter((d) => {
                 d.status = d.status.toString()
+                d.startTime = d.startTime.substr(0, d.startTime.indexOf(' '))
+                d.buyTime = d.buyTime.substr(0, d.buyTime.indexOf(' '))
                 return d;
             })
         }
     },
-    components: {
-        CategorySelect
-    },
     methods: {
-        getNodeData() {
-            this.$axios('api/deviceCategory/tree.json').then((res) => {
-                this.categoryList = res.data.data
+        loadCategoryTree() {
+            this.$axios('/deviceCategory/tree.json').then((res) => {
+                this.categoryTree = res.data.data
 
-                // 递归渲染所有设备类别树
-                // this.recursiveRenderDeviceCategory(categoryList)
-                this.fn(this.categoryList)
-                this.nodeData = this.categoryList
-                
-                this.recursiveRenderDeviceCategorySelect(this.categoryList, 1)
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
-            })
-        },
-        recursiveRenderDeviceCategory(categoryList) {
-            if (categoryList && categoryList.length > 0) {
-                _.forEach(categoryList, (category, index) => {
-                    let node = {
-                        id: category.id,
-                        lable: category.title,
-                        children: node.children
-                    }
-                    this.categoryMap[category.id] = category
-                    if (category.deviceCategoryLevelDTOList && category.deviceCategoryLevelDTOList.length > 0) {
-                        this.recursiveRenderDeviceCategory(category.deviceCategoryLevelDTOList)
-                    }
-                })
-            }
-        },
-        fn (list) {
-            if (list.length > 0) {
-                list.forEach(item => {
-                    let keys = Object.keys(item)
-                        keys.forEach(key => {
-                            let newKey = keyMap[key]
-                            if(newKey){
-                                item[newKey] = item[key]
-                                delete item[key]
-                                if (Array.isArray(item[newKey])) {
-                                    this.fn(item[newKey])
-                                }
-                            }
-                    })
-                })
-            }
-        },
-        handleNodeClick(data) {
-            this.categoryId = data.id
-            this.getDeviceByCategoryId(data.id)
-        },
-        handleCurrentChange(val) {
-            this.pageNum = val
-            this.getDeviceByCategoryId(this.categoryId)
-        },
-        getDeviceByCategoryId(categoryId) {
-            let postData = this.$qs.stringify({
-                categoryId: categoryId,
-                pageNum: this.pageNum,
-                pageSize: this.pageSize
-            })
-            this.$axios({
-                method: 'post',
-                url: '/api/deviceInfo/page.json',
-                data: postData
-            }).then((res) => {
-                if (res.data.success) {
-                    var page = res.data.data
-                    this.tableData = page.list
-                    this.total = page.total
-                } else {
-                    this.$message.error(` ${res.data.msg} `)
-                }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
+                // 递归渲染设备类别树选择列表
+                this.options = []
+                this.recursiveRenderDeviceCategorySelect(this.categoryTree, 1)
             })
         },
         // 递归渲染设备类别树选择列表
@@ -403,11 +350,10 @@ export default {
                         }
                         blank += '∟'
                     }
-                    let options = {
+                    this.options.push({
                         value: category.id,
                         label: blank + category.label,
-                    }
-                    this.options.push(options)
+                    })
                     if (category.children && category.children.length > 0) {
                         this.recursiveRenderDeviceCategorySelect(category.children, level + 1);
                     }
@@ -424,33 +370,27 @@ export default {
                 status: '1'
             }
         },
-        getCategoryId(categoryId) {
-            this.categoryForm.categoryId = categoryId
-            this.deviceForm.categoryId = categoryId
-        },
         categoryInsert(form) {
             this.$refs[form].validate((valid) => {
                 if (valid) {
                     let postData = this.$qs.stringify({
-                        parentId: this.categoryForm.categoryId,
+                        parentId: this.categoryForm.parentId,
                         title: this.categoryForm.title,
                         seq: this.categoryForm.seq,
                         status: this.categoryForm.status
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/deviceCategory/save.json',
+                        url: '/deviceCategory/save.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
                             this.insertCategoryVisible = false
                             this.$message.success(`设备类别《 ${this.categoryForm.title} 》添加成功`)
-                            this.getNodeData()
+                            this.loadCategoryTree()
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -461,12 +401,11 @@ export default {
         handleCategoryEdit(data) {
             this.categoryForm = {
                 id: data.id,
-                categoryId: data.parentId,
+                parentId: data.parentId,
                 title: data.label,
                 seq: data.seq,
                 status: data.status.toString()
             }
-            this.defaultCategory = data.parentId
             this.editCategoryVisible = true
         },
         categoryEdit(form) {
@@ -474,25 +413,23 @@ export default {
                 if (valid) {
                     let postData = this.$qs.stringify({
                         id: this.categoryForm.id,
-                        parentId: this.categoryForm.categoryId,
+                        parentId: this.categoryForm.parentId,
                         title: this.categoryForm.title,
                         seq: this.categoryForm.seq,
                         status: this.categoryForm.status
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/deviceCategory/update.json',
+                        url: '/deviceCategory/update.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
                             this.editCategoryVisible = false
                             this.$message.success(`设备类别《 ${this.categoryForm.title} 》更新成功`)
-                            this.getNodeData()
+                            this.loadCategoryTree()
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -500,10 +437,74 @@ export default {
                 }
             })
         },
+        handleCategoryDelete(data) {
+            this.categoryForm = {
+                id: data.id
+            }
+            this.deleteCategoryVisible = true
+        },
+        categoryDelete() {
+            let postData = this.$qs.stringify({
+                categoryId: this.categoryForm.id
+            })
+            this.$axios({
+                method: 'post',
+                url: '/deviceCategory/delete.json',
+                data: postData
+            }).then((res)=>{
+                if (res.data.success) {
+                    this.tableData.splice(this.idx, 1)
+                    this.$message.success(`设备类别删除成功`)
+                    this.deleteCategoryVisible = false
+                    this.loadCategoryTree()
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                    this.deleteCategoryVisible = false
+                }
+            })
+        },
+        handleNodeClick(data) {
+            this.deviceForm.categoryId = data.id
+            this.loadDeviceListByCategoryId(data.id)
+        },
+        handleCurrentChange(val) {
+            this.pageNum = val
+            this.loadDeviceListByCategoryId(this.deviceForm.categoryId)
+        },
+        loadDeviceListByCategoryId(categoryId) {
+            let postData = this.$qs.stringify({
+                categoryId: categoryId,
+                pageNum: this.pageNum,
+                pageSize: this.pageSize
+            })
+            this.$axios({
+                method: 'post',
+                url: '/deviceInfo/page.json',
+                data: postData
+            }).then((res) => {
+                if (res.data.success) {
+                    var page = res.data.data
+                    this.tableData = page.list
+                    this.total = page.total
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
+            })
+        },
+
         handleDeviceInsert() {
             this.insertDeviceVisible = true
-            this.defaultCategory = this.categoryId
-            this.deviceForm.categoryId = this.categoryId
+            this.deviceForm = {
+                categoryId: this.deviceForm.categoryId,
+                name: '',
+                brand: '',
+                model: '',
+                serial: '',
+                area: '',
+                buyTime: '',
+                startTime: '',
+                status: '1'
+            }
         },
         deviceInsert(form) {
             this.$refs[form].validate((valid) => {
@@ -521,18 +522,16 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/deviceInfo/save.json',
+                        url: '/deviceInfo/save.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
                             this.insertDeviceVisible = false
                             this.$message.success(`设备《 ${this.deviceForm.name} 》添加成功`)
-                            this.getDeviceByCategoryId(this.deviceForm.categoryId)
+                            this.loadDeviceListByCategoryId(this.deviceForm.categoryId)
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -555,8 +554,6 @@ export default {
                 startTime: item.startTime,
                 status: item.status
             }
-            this.defaultCategory = item.categoryId
-            console.log(this.defaultCategory)
             this.updateDeviceVisible = true
         },
         deviceUpdate(form) {
@@ -576,18 +573,16 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/deviceInfo/update.json',
+                        url: '/deviceInfo/update.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
                             this.updateDeviceVisible = false
                             this.$message.success(`设备《 ${this.deviceForm.name} 》修改成功`)
-                            this.getDeviceByCategoryId(this.deviceForm.categoryId)
+                            this.loadDeviceListByCategoryId(this.deviceForm.categoryId)
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -597,16 +592,18 @@ export default {
         },
         handleDeviceDelete(index, row) {
             this.idx = index
-            this.del_id = row.id
+            this.deviceForm = {
+                id: row.id
+            }
             this.delDeviceVisible = true
         },
         deviceDelete() {
             let postData = this.$qs.stringify({
-                deviceId: this.del_id
+                deviceId: this.deviceForm.id
             })
             this.$axios({
                 method: 'post',
-                url: '/api/deviceInfo/delete.json',
+                url: '/deviceInfo/delete.json',
                 data: postData
             }).then((res)=>{
                 if (res.data.success) {
@@ -616,8 +613,6 @@ export default {
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         }
         
@@ -640,5 +635,8 @@ export default {
 .table{
     width: 100%;
     font-size: 14px;
+}
+.el-tree-node__content {
+    padding: 10px 0px;
 }
 </style>

@@ -1,0 +1,342 @@
+// 首页
+
+<template>
+    <div>
+        <el-row :gutter="20">
+             <el-col :span="8" style="padding-right: 0px;">
+                <el-card shadow="hover" class="mgb20" style="height:350px;">
+                    <div class="user-info">
+                        <v-click></v-click>
+                        <div class="user-info-cont">
+                            <div class="user-info-name">{{ userInfo.username }}</div>
+                            <div>{{ userInfo.email }}</div>
+                        </div>
+                    </div>
+                </el-card>
+            </el-col>
+            <el-col :span="16">
+                <el-card shadow="hover" style="height:350px;">
+                    <div slot="header" class="clearfix">
+                        <span>待办事项</span>
+                    </div>
+                    <el-table :data="remindList" :show-header="false" height="304" style="width: 100%;font-size:14px;">
+                        <el-table-column width="40">
+                            <template slot-scope="scope">
+                                <el-checkbox v-model="scope.row.status"></el-checkbox>
+                            </template>
+                        </el-table-column>
+                        <el-table-column>
+                            <template slot-scope="scope">
+                                <div class="todo-item">
+                                    <span style="display: inline-block;width: 60%;" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</span>
+                                    <span style="float: right">提醒时间：{{scope.row.time}}</span>
+                                    <span style="float: right; margin-right: 30px;">
+                                        <el-tag type="success" v-if="scope.row.status === 0">未提醒</el-tag>
+                                        <el-tag type="info" v-if="scope.row.status === 1">已提醒</el-tag>
+                                    </span>
+                                </div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+            </el-col>
+            <el-col :span="24" style="margin-bottom: 10px; margin-top: -10px;">
+                <el-card shadow="hover">
+                    <div slot="header" class="clearfix">
+                        <span>当前值班人员</span>
+                    </div>
+                    <div>
+                        <el-col :span="4" v-for="(item, index) in dutyList" :key="item.id" :offset="index > 0 ? 2 : 0">
+                            <el-card :body-style="{ padding: '0px' }">
+                                <img :src="item.img" class="image">
+                                <div style="padding: 14px;">
+                                    <span>{{ item.name }}</span>
+                                    <span style="float: right;">{{ item.gender }}</span>
+                                </div>
+                            </el-card>
+                        </el-col>
+                    </div>
+                </el-card>
+            </el-col>
+            <el-col :span="12" style="padding-right: 0px;">
+                <el-card shadow="hover"  style="height:403px;">
+                    <div slot="header" class="clearfix">
+                        <span>值班日志</span>
+                    </div>
+                    <el-table height="300" style="width: 100%;" :data="logboolTableData" class="table" ref="multipleTable">
+                        <el-table-column prop="title" label="日志表名称" width="250"></el-table-column>
+                        <el-table-column prop="going" label="工作情况">
+                            <template slot-scope="scope">
+                                <el-tag v-show="scope.row.going === 1" type="success">正常</el-tag>
+                                <el-tag v-show="scope.row.going === 0" type="danger">异常</el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card shadow="hover"  style="height:403px;">
+                    <div slot="header" class="clearfix">
+                        <span>调度信息</span>
+                    </div>
+                    <el-table height="300" style="width: 100%;" :data="dispatchTableData" class="table" ref="multipleTable">
+                        <el-table-column prop="deptName" label="频率" width="150"></el-table-column>
+                        <el-table-column prop="program" label="转播的节目"></el-table-column>
+                        <el-table-column prop="period" label="转播的周期" ></el-table-column>
+                    </el-table>
+                </el-card>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script>
+import bus from '../../common/bus'
+import _ from 'lodash'
+import VClick from '../../common/Click'
+
+export default {
+    data() {
+        return {
+            userInfo: {
+                username: '',
+                email: ''
+            },
+            remindList: [],
+            logboolTableData: [],
+            dispatchTableData: [],
+            dutyList: []
+        }
+    },
+    components: {
+        VClick
+    },
+    mounted() {
+        this.loadUserInfo()
+        this.loadCurrentDateDuty()
+        this.loadCurrentDateRemind()
+        this.loadLogbookList()
+        this.loadDispatchList()
+    },
+    methods: {
+        // 加载用户信息
+        loadUserInfo() {
+            this.userInfo = {
+                username: localStorage.getItem('username'),
+                email: localStorage.getItem('email')
+            }
+        },
+        // 加载当前时间的值班表
+        loadCurrentDateDuty() {
+            this.dutyList = []
+            this.tableList = []
+            this.$axios('/dutyInfo/get_detail_by_now.json').then((res) => {
+                if (res.data.success) {
+                    this.tableList = []
+                    this.dutyList = []
+                    this.tableList.push(res.data.data)
+                    this.loadEmployeeList(res.data.data)
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
+            })
+        },
+        // 加载当前班期值班人员列表
+        loadEmployeeList(employeeList) {
+            if (employeeList.shiftChangeList && employeeList.shiftChangeList.length > 0) {
+                _.forEach(employeeList.shiftChangeList, (item, index) => {
+                    let employee = item.employee
+                    let option = {
+                        shiftId: item.id,
+                        id: employee.id,
+                        img: employee.photoUrl,
+                        name: employee.name,
+                        gender: employee.gender == 1 ? '男' : '女'
+                    }
+                    this.dutyList.push(option)
+                })
+            }
+        },
+        // 加载值班日志列表
+        loadLogbookList() {
+            let postData = this.$qs.stringify({
+                dayNum: 3
+            })
+            this.$axios({
+                method: 'post',
+                url: '/logbook/get_list_by_day_num.json',
+                data: postData
+            }).then((res)=>{
+                if (res.data.success) {
+                    this.logboolTableData = []
+                    _.forEach(res.data.data, (item, index) => {
+                        this.logboolTableData.push({
+                            title: item.title,
+                            going: item.going
+                        })
+                    })
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
+            })
+        },
+        // 加载调度信息列表
+        loadDispatchList() {
+            let postData = this.$qs.stringify({
+                dayNum: 7
+            })
+            this.$axios({
+                method: 'post',
+                url: '/dispatch/get_list_by_day_num.json',
+                data: postData
+            }).then((res)=>{
+                if (res.data.success) {
+                    this.dispatchTableData = []
+                    _.forEach(res.data.data, (item, index) => {
+                        this.dispatchTableData.push({
+                            deptName: item.deptName,
+                            program: item.program,
+                            period: item.period
+                        })
+                    })
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
+            })
+        },
+        // 加载当天的提醒
+        loadCurrentDateRemind() {
+            this.$axios('/remind/get_current_date_list.json').then((res)=>{
+                if (res.data.success) {
+                    this.remindList = []
+                    _.forEach(res.data.data, (remind, index) => {
+                        var option = remind
+                        option.title = remind.reminder
+                        option.time = this.$moment(remind.remindTime).format('YYYY-MM-DD HH:mm')
+                        this.remindList.push(option)
+                    })
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
+            })
+        }
+    }
+}
+</script>
+
+<style>
+.el-row {
+    margin-bottom: 20px;
+}
+
+.grid-content {
+    display: flex;
+    align-items: center;
+    height: 100px;
+}
+
+.grid-cont-right {
+    flex: 1;
+    text-align: center;
+    font-size: 14px;
+    color: #999;
+}
+
+.grid-num {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.grid-con-icon {
+    font-size: 50px;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    line-height: 100px;
+    color: #fff;
+}
+
+.grid-con-1 .grid-con-icon {
+    background: rgb(45, 140, 240);
+}
+
+.grid-con-1 .grid-num {
+    color: rgb(45, 140, 240);
+}
+
+.grid-con-2 .grid-con-icon {
+    background: rgb(100, 213, 114);
+}
+
+.grid-con-2 .grid-num {
+    color: rgb(45, 140, 240);
+}
+
+.grid-con-3 .grid-con-icon {
+    background: rgb(242, 94, 67);
+}
+
+.grid-con-3 .grid-num {
+    color: rgb(242, 94, 67);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    padding-bottom: 20px;
+    /* border-bottom: 2px solid #ccc; */
+    margin-bottom: 20px;
+}
+
+.user-avator {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+
+.user-info-cont {
+    padding-left: 50px;
+    flex: 1;
+    font-size: 14px;
+    color: #999;
+}
+
+.user-info-cont div:first-child {
+    font-size: 30px;
+    color: #222;
+}
+
+.user-info-list {
+    font-size: 14px;
+    color: #999;
+    line-height: 25px;
+}
+
+.user-info-list span {
+    margin-left: 70px;
+}
+
+.mgb20 {
+    margin-bottom: 20px;
+}
+
+.todo-item {
+    font-size: 14px;
+}
+
+.table{
+    width: 100%;
+    font-size: 14px;
+}
+.todo-item-del {
+    text-decoration: line-through;
+}
+.el-col-4 {
+    width: 16.66667%;
+    margin-bottom: 20px;
+}
+.image {
+    width: 100%;
+    display: block;
+}
+</style>

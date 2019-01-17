@@ -5,7 +5,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item><i class="el-icon-tickets"></i> 题库管理</el-breadcrumb-item>
-                <el-breadcrumb-item>试题分类</el-breadcrumb-item>
+                <el-breadcrumb-item>分类管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
@@ -78,7 +78,7 @@
         </el-dialog>
 
         <!-- 删除提示框 -->
-        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+        <el-dialog title="删除分类" :visible.sync="delVisible" width="300px" center>
             <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="delVisible = false">取 消</el-button>
@@ -106,7 +106,7 @@ export default {
             },
             rules: {
                 title: [
-                    { required: true, message: '请输入巡检项名称', trigger: 'blur' }
+                    { required: true, message: '请输入试题分类名称', trigger: 'blur' }
                 ]
             }
         }
@@ -124,9 +124,13 @@ export default {
     },
     methods: {
         getData() {
-            this.$axios('/api/questionCategory/get_list_by_param.json')
+            this.$axios('/questionCategory/get_list_by_param.json')
             .then((res) => {
-                this.tableData = res.data.data
+                if (res.data.success) {
+                    this.tableData = res.data.data
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
             })
         },
         handleInsert () {
@@ -142,7 +146,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/questionCategory/save.json',
+                        url: '/questionCategory/save.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -152,8 +156,6 @@ export default {
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -183,18 +185,16 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/questionCategory/update.json',
+                        url: '/questionCategory/update.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
                             this.editVisible = false
-                            this.$message.success(`修改第 ${this.idx+1} 行成功`)
+                            this.$message.success(`试题分类《 ${this.categoryForm.title} 》修改成功`)
                             this.getData()
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -213,18 +213,16 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/api/questionCategory/delete.json',
+                url: '/questionCategory/delete.json',
                 data: postData
             }).then((res)=>{
                 if (res.data.success) {
                     this.tableData.splice(this.idx, 1)
-                    this.$message.success('删除成功')
+                    this.$message.success('试题分类删除成功')
                     this.delVisible = false
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         }
     }

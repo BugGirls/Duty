@@ -6,18 +6,30 @@ const path = require('path')
 
 module.exports = {
   dev: {
-
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api':{
-          target:'http://localhost:8081',
-          changeOrigin:true,
-          pathRewrite:{
-              '/api':''
-          }
+      // '/':{
+      //     target:'http://localhost:8082',
+      //     changeOrigin:true,
+      //     pathRewrite:{
+      //         '/':''
+      //     }
+      // },
+      '/card':{
+        target:'http://172.20.0.23:8082/',
+        changeOrigin:true,
+        pathRewrite:{
+          '^/card':''
+        }
       },
+      '/':{
+        target:'http://localhost:8082',
+        changeOrigin:true,
+      },
+      
+
       '/ms':{
           target: 'https://www.easy-mock.com/mock/592501a391470c0ac1fab128',
           changeOrigin: true
@@ -60,7 +72,7 @@ module.exports = {
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
     assetsPublicPath: './',
-
+    
     /**
      * Source Maps
      */

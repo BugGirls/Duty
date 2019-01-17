@@ -33,6 +33,15 @@ export default {
             this.selectId = this.defaultValue
         }
     },
+    computed: {
+        model() {
+            if (this.defaultValue === '') {
+                this.selectId = ''
+            } else {
+                this.selectId = this.defaultValue
+            }
+        }  
+    },
     methods: {
         chooseSelection() {
             this.$emit('on-change', this.selectId)

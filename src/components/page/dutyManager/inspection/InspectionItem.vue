@@ -125,7 +125,7 @@ export default {
     },
     methods: {
         getData() {
-            this.$axios('/api/inspectionItem/get_current_user_list.json')
+            this.$axios('/inspectionItem/list.json')
             .then((res) => {
                 this.tableData = res.data.data
             })
@@ -159,7 +159,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/inspectionItem/save.json',
+                        url: '/inspectionItem/save.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -189,7 +189,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/inspectionItem/update.json',
+                        url: '/inspectionItem/update.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -214,7 +214,7 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/api/inspectionItem/delete.json',
+                url: '/inspectionItem/delete.json',
                 data: postData
             }).then((res)=>{
                 if (res.data.success) {

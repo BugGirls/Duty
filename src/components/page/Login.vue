@@ -1,42 +1,49 @@
+// 用户登录
+
 <template>
     <div class="login-wrap">
         <div class="ms-login">
             <div class="ms-title">后台管理系统</div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
-                    <el-input v-model="ruleForm.username" placeholder="username">
-                        <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
+                    <el-input v-model="ruleForm.username" placeholder="请输入邮箱">
+                        <el-button slot="prepend" icon="el-icon-lx-mail"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" placeholder="password" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
+                    <el-input type="password" placeholder="请输入登录密码" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
                         <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
                     </el-input>
                 </el-form-item>
-                <div class="login-btn">
-                    <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                <div class="login-btn" style="margin-bottom: 30px;">
+                    <el-button type="success" @click="submitForm('ruleForm')">登录</el-button>
+                    <span>
+                        <el-button type="info" style="float: left; width: 49%" class="el-button--primary" @click="gotoRegister()">没有账号？去注册</el-button>
+                        <el-button type="warning" style="float: right; width: 49%" @click="gotoRetrieve()">忘记密码？</el-button>
+                    </span>
                 </div>
-                <p class="login-tips">{{ loginTips }}</p>
             </el-form>
         </div>
     </div>
 </template>
 
 <script>
+    import _ from 'lodash'
+    import connectSocket from '../common/WebSocket.js'
+
     export default {
         data: function(){
             return {
-                loginTips: '',
                 ruleForm: {
                     username: '',
                     password: ''
                 },
                 rules: {
                     username: [
-                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                        { required: true, message: '请输入邮箱', trigger: 'blur' }
                     ],
                     password: [
-                        { required: true, message: '请输入密码', trigger: 'blur' }
+                        { required: true, message: '请输入登录密码', trigger: 'blur' }
                     ]
                 }
             }
@@ -51,25 +58,62 @@
                         })
                         this.$axios({
                             method: 'post',
-                            url: '/api/login.json',
+                            url: '/login.json',
                             data: postData
                         }).then((res)=>{
-                            console.log(res)
                             if (res.data.success) {
-                                localStorage.setItem('ms_username', res.data.data.username)
+                                console.log(res.data.data)
+                                localStorage.setItem('username', res.data.data.username)
+                                localStorage.setItem('email', res.data.data.mail)
                                 this.$router.push('/');
+                                this.getAcls()
+                                this.getRoles()
+                                connectSocket((v)=>{
+                                    this.$notify({
+                                        title: '提醒',
+                                        message: v,
+                                        duration: 0
+                                    })
+                                })
                             } else {
-                                this.loginTips = res.data.msg
+                                this.$message.error(` ${res.data.msg} `)
                             }
-                        }, (err) => {
-                            this.loginTips = '请求失败'
-                            console.log(err)
                         });
                     } else {
-                        this.loginTips = '参数错误'
+                        this.$message.error(` 参数错误 `)
                         return false;
                     }
                 });
+            },
+            gotoRegister() {
+                this.$router.push({
+                    path:'/register',
+                })
+            },
+            gotoRetrieve() {
+                this.$router.push({
+                    path:'/retrieve',
+                })
+            },
+            // 用户登录成功后，获取当前登录用户所对应的权限
+            getAcls() {
+                this.$axios('/sys/acl/get_acl_url_list.json').then((res) => {
+                    if (res.data.success) {
+                        localStorage.setItem('acls', res.data.data)
+                    } else {
+                        this.$message.error(` ${res.data.msg} `)
+                    }
+                })
+            },
+            // 获取当前用户所分配的角色
+            getRoles() {
+                this.$axios('/sys/role/get_user_role_list.json').then((res) => {
+                    if (res.data.success) {
+                        localStorage.setItem('roles', res.data.data)
+                    } else {
+                        this.$message.error(` ${res.data.msg} `)
+                    }
+                })
             }
         }
     }
@@ -116,5 +160,13 @@
         font-size:12px;
         line-height:30px;
         color:#fff;
+    }
+    .el-button+.el-button {
+        margin: auto;
+    }
+    .el-button--primary {
+        color: #fff;
+        background-color: #409EFF;
+        border-color: #409EFF;
     }
 </style>

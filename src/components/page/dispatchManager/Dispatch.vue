@@ -4,19 +4,21 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-lx-forward"></i> 调度管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-lx-time"></i> 调度管理</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="handle-box">
-                <dept-select :options="deptOptions" @on-change="selectChange($event)"></dept-select>
+                <el-select v-model="selectDeptId" clearable placeholder="请选择所属频率" @change="selectChange">
+                    <el-option v-for="item in deptOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
                 <el-button-group>
                     <el-button type="primary" icon="el-icon-lx-add" @click="handleInsert()">新增调度信息</el-button>
                 </el-button-group>
             </div>
             <el-table border :data="data" class="table" ref="multipleTable">
                 <el-table-column prop="id" label="ID" width="170"></el-table-column>
-                <el-table-column prop="deptName" label="频率"></el-table-column>
+                <el-table-column prop="deptName" label="频率" width="150"></el-table-column>
                 <el-table-column prop="program" label="转播的节目" width="200"></el-table-column>
                 <el-table-column prop="longRebroadcast" label="长期转播">
                     <template slot-scope="scope">
@@ -50,7 +52,9 @@
         <el-dialog title="新增调度信息" :visible.sync="insertVisible" width="36%">
             <el-form ref="form" label-position="right" :rules="rules" :model="dispatchForm" label-width="100px">
                 <el-form-item label="所属频率" prop="deptId">
-                    <dept-select :options="deptOptions" @on-change="getDeptId($event)"></dept-select>
+                    <el-select v-model="dispatchForm.deptId" clearable placeholder="请选择所属频率">
+                        <el-option v-for="item in deptOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="转播的节目" prop="program">
                     <el-input type="textarea" v-model="dispatchForm.program"></el-input>
@@ -62,7 +66,9 @@
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="设备类别" prop="categoryId">
-                    <device-category-select :options="categoryOptions" @on-change="getCategoryId($event)"></device-category-select>
+                    <el-select v-model="dispatchForm.categoryId" clearable placeholder="请选择设备类别" @change="cagegoryChange">
+                        <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="选择设备" prop="deviceIds" v-show="deviceInfos.length > 0">
                     <el-checkbox-group v-model="dispatchForm.deviceIds" size="small">
@@ -97,7 +103,9 @@
         <el-dialog title="编辑调度信息" :visible.sync="editVisible" width="36%">
             <el-form ref="form" label-position="right" :rules="rules" :model="dispatchForm" label-width="100px">
                 <el-form-item label="所属频率" prop="deptId">
-                    <dept-select :options="deptOptions" :defaultValue="defaultDeptId" @on-change="getDeptId($event)"></dept-select>
+                    <el-select v-model="dispatchForm.deptId" clearable placeholder="请选择所属频率">
+                        <el-option v-for="item in deptOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="转播的节目" prop="program">
                     <el-input type="textarea" v-model="dispatchForm.program"></el-input>
@@ -109,9 +117,11 @@
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item label="设备类别" prop="categoryId">
-                    <device-category-select :options="categoryOptions" :defaultValue="defaultCategoryId" @on-change="getCategoryId($event)"></device-category-select>
+                    <el-select v-model="dispatchForm.categoryId" clearable placeholder="请选择设备类别" @change="cagegoryChange">
+                        <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="选择设备" prop="deviceIds" v-show="dispatchForm.categoryId">
+                <el-form-item label="选择设备" prop="deviceIds" v-show="deviceInfos.length > 0">
                     <el-checkbox-group v-model="dispatchForm.deviceIds" size="small">
                         <el-checkbox-button v-for="item in deviceInfos" :label="item.value" :key="item.label">{{ item.label }}</el-checkbox-button>
                     </el-checkbox-group>
@@ -152,14 +162,9 @@
 </template>
 
 <script>
-import Selection from '../../common/Selection'
 import _ from 'lodash'
 
 export default {
-    components: {
-        DeptSelect: Selection,
-        DeviceCategorySelect: Selection
-    },
     data() {
         return {
             tableData: [],
@@ -175,6 +180,7 @@ export default {
             defaultDeptId: '',
             defaultCategoryId: '',
             idx: -1,
+            selectDeptId: '',
             dispatchForm: {
                 id: '',
                 deptId: '',
@@ -212,9 +218,9 @@ export default {
             },
         }
     },
-    created() {
+    mounted() {
         this.getData()
-        this.getDeptList()
+        this.loadDeptSelect()
         this.getDeviceCategoryList()
     },
     computed: {
@@ -236,11 +242,11 @@ export default {
             let postData = this.$qs.stringify({
                 pageNum: this.pageNum,
                 pageSize: this.pageSize,
-                deptId: this.dispatchForm.deptId
+                deptId: this.selectDeptId
             })
             this.$axios({
                 method: 'post',
-                url: '/api/dispatch/page_by_param.json',
+                url: '/dispatch/page_by_param.json',
                 data: postData
             }).then((res) => {
                 if (res.data.success) {
@@ -250,32 +256,50 @@ export default {
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         },
-        getDeptList() {
-            this.$axios('/api/sys/dept/tree.json').then((res) => {
+        // 加载部门选择列表
+        loadDeptSelect() {
+            this.$axios('/sys/dept/tree.json').then((res) => {
                 if (res.data.success) {
                     var deptTree = res.data.data
                     this.recursiveRenderDeptSelect(deptTree, 1)
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         },
+        // 递归渲染部门树选择列表
+        recursiveRenderDeptSelect(deptList, level) {
+            level = level | 0
+            if (deptList && deptList.length > 0) {
+                _.forEach(deptList, (dept, index) => {
+                    var blank = ''
+                    if (level > 1) {
+                        for (var j = 3; j <= level; j++) {
+                            blank += '..'
+                        }
+                        blank += '∟'
+                    }
+                    let option = {
+                        value: dept.id,
+                        label: blank + dept.name
+                    }
+                    this.deptOptions.push(option)
+                    if (dept.children && dept.children.length > 0) {
+                        this.recursiveRenderDeptSelect(dept.children, level + 1);
+                    }
+                })
+            }
+        },
         getDeviceCategoryList() {
-            this.$axios('/api/deviceCategory/tree.json').then((res) => {
+            this.$axios('/deviceCategory/tree.json').then((res) => {
                 if (res.data.success) {
                     var categoryTree = res.data.data
                     this.recursiveRenderDeviceCategorySelect(categoryTree, 1)
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         },
         // 递归渲染设备类别树选择列表
@@ -295,54 +319,31 @@ export default {
                         label: blank + category.title,
                     }
                     this.categoryOptions.push(option)
-                    if (category.deviceCategoryLevelDTOList && category.deviceCategoryLevelDTOList.length > 0) {
-                        this.recursiveRenderDeviceCategorySelect(category.deviceCategoryLevelDTOList, level + 1);
+                    if (category.children && category.children.length > 0) {
+                        this.recursiveRenderDeviceCategorySelect(category.children, level + 1);
                     }
                 })
             }
         },
-        // 递归渲染部门树选择列表
-        recursiveRenderDeptSelect(deptList, level) {
-            level = level | 0
-            if (deptList && deptList.length > 0) {
-                _.forEach(deptList, (dept, index) => {
-                    var blank = ''
-                    if (level > 1) {
-                        for (var j = 3; j <= level; j++) {
-                            blank += '..'
-                        }
-                        blank += '∟'
-                    }
-                    let option = {
-                        value: dept.id,
-                        label: blank + dept.name
-                    }
-                    this.deptOptions.push(option)
-                    if (dept.deptLevelDTOList && dept.deptLevelDTOList.length > 0) {
-                        this.recursiveRenderDeptSelect(dept.deptLevelDTOList, level + 1);
-                    }
-                })
-            }
-        },
+        
         selectChange(deptId) {
-            this.dispatchForm.deptId = deptId
+            this.selectDeptId = deptId
             this.getData()
         },
         getDeptId(deptId) {
             this.dispatchForm.deptId = deptId
         },
-        getCategoryId(categoryId) {
+        cagegoryChange() {
             this.deviceInfos = []
-            this.dispatchForm.categoryId = categoryId
-            this.getDeviceByCategoryId(categoryId)
+            this.getDeviceByCategoryId()
         },
-        getDeviceByCategoryId(categoryId) {
+        getDeviceByCategoryId() {
             let postData = this.$qs.stringify({
-                categoryId: categoryId
+                categoryId: this.dispatchForm.categoryId
             })
             this.$axios({
                 method: 'post',
-                url: '/api/deviceInfo/list.json',
+                url: '/deviceInfo/list.json',
                 data: postData
             }).then((res) => {
                 if (res.data.success) {
@@ -356,12 +357,22 @@ export default {
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         },
         handleInsert() {
             this.insertVisible = true
+            this.deviceInfos = []
+            this.dispatchForm = {
+                deptId: '',
+                program: '',
+                longRebroadcast: '0',
+                categoryId: '',
+                deviceIds: [],
+                period: '',
+                timeFrame: '',
+                status: '1',
+                remark: ''
+            }
         },
         dispatchInsert(form) {
             this.$refs[form].validate((valid) => {
@@ -381,7 +392,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/dispatch/save.json',
+                        url: '/dispatch/save.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -391,8 +402,6 @@ export default {
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -443,7 +452,7 @@ export default {
                     })
                     this.$axios({
                         method: 'post',
-                        url: '/api/dispatch/update.json',
+                        url: '/dispatch/update.json',
                         data: postData
                     }).then((res)=>{
                         if (res.data.success) {
@@ -453,8 +462,6 @@ export default {
                         } else {
                             this.$message.error(` ${res.data.msg} `)
                         }
-                    }, (err) => {
-                        this.$message.error(` 请求失败 `)
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
@@ -473,7 +480,7 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/api/dispatch/delete.json',
+                url: '/dispatch/delete.json',
                 data: postData
             }).then((res)=>{
                 if (res.data.success) {
@@ -483,8 +490,6 @@ export default {
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
-            }, (err) => {
-                this.$message.error(` 请求失败 `)
             })
         }
     }

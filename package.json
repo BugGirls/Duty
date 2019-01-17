@@ -1,5 +1,5 @@
 {
-  "name": "vue-manage-system",
+  "name": "duty",
   "version": "3.2.0",
   "description": "基于Vue.js 2.x系列 + element-ui 内容管理系统解决方案",
   "author": "lin-xin <2981207131@qq.com>",
@@ -12,11 +12,14 @@
     "axios": "^0.15.3",
     "babel-polyfill": "^6.23.0",
     "element-ui": "^2.4.5",
+    "file-saver": "^2.0.0",
     "js-base64": "^2.4.9",
     "js-md5": "^0.7.3",
     "mavon-editor": "^2.5.4",
+    "moment": "^2.23.0",
     "vue": "^2.5.16",
     "vue-cropperjs": "^2.2.0",
+    "vue-pdf": "^4.0.4",
     "vue-quill-editor": "3.0.6",
     "vue-router": "^3.0.1",
     "vue-schart": "^1.0.0",
@@ -40,12 +43,14 @@
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^2.30.1",
     "node-notifier": "^5.1.2",
+    "node-sass": "^4.11.0",
     "optimize-css-assets-webpack-plugin": "^3.2.0",
     "ora": "^1.2.0",
     "portfinder": "^1.0.13",
     "postcss-import": "^11.0.0",
     "postcss-loader": "^2.0.8",
     "rimraf": "^2.6.0",
+    "sass-loader": "^7.1.0",
     "semver": "^5.3.0",
     "shelljs": "^0.7.6",
     "uglifyjs-webpack-plugin": "^1.1.1",
@@ -53,7 +58,7 @@
     "vue-loader": "^13.3.0",
     "vue-style-loader": "^3.0.1",
     "vue-template-compiler": "^2.5.2",
-    "webpack": "^3.6.0",
+    "webpack": "^3.12.0",
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-server": "^2.9.1",
     "webpack-merge": "^4.1.0"
@@ -66,5 +71,15 @@
     "> 1%",
     "last 5 versions",
     "not ie <= 8"
-  ]
+  ],
+  "main": ".postcssrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BugGirls/Duty.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BugGirls/Duty/issues"
+  },
+  "homepage": "https://github.com/BugGirls/Duty#readme"
 }

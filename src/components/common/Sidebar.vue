@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar">
-        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#324157"
-            text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
+        <!-- background-color="#324157" text-color="#bfcbd9" active-text-color="#20a0ff" -->
+        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" unique-opened router>
             <template v-for="item in items">
                 <template v-if="item.subs">
                     <el-submenu :index="item.index" :key="item.index">
@@ -40,7 +40,7 @@
                 items: [
                     {
                         icon: 'el-icon-lx-home',
-                        index: 'dashboard',
+                        index: 'index',
                         title: '系统首页'
                     },
                     {
@@ -57,17 +57,17 @@
                                 title: '值班表',
                                 subs: [
                                     {
-                                        index: 'generator-duty',
-                                        title: '生成值班表'
-                                    },
-                                    {
                                         index: 'duty-info',
                                         title: '查看值班表'
                                     },
+                                    {
+                                        index: 'duty-generator',
+                                        title: '生成值班表'
+                                    }
                                 ]
                             },
                             {
-                                index: 'shift-duty',
+                                index: 'shift-change',
                                 title: '交接班'
                             },
                             {
@@ -110,7 +110,7 @@
                         subs: [
                             {
                                 index: 'question_category',
-                                title: '试题类型'
+                                title: '分类管理'
                             },
                             {
                                 index: 'question',
@@ -123,89 +123,122 @@
                         ]
                     },
                     {
-                        icon: 'el-icon-lx-forward',
+                        icon: 'el-icon-lx-time',
                         index: 'dispatch',
                         title: '调度管理'
                     },
                     {
-                        icon: 'el-icon-lx-cascades',
-                        index: 'device',
-                        title: '设备管理'
-                    },
-                    {
-                        icon: 'el-icon-lx-cascades',
-                        index: 'permission',
-                        title: '权限管理'
-                    },
-                    {
-                        icon: 'el-icon-lx-cascades',
-                        index: 'table',
-                        title: '基础表格'
-                    },
-                    {
-                        icon: 'el-icon-lx-copy',
-                        index: 'tabs',
-                        title: 'tab选项卡'
-                    },
-                    {
-                        icon: 'el-icon-lx-calendar',
+                        icon: 'el-icon-lx-record',
                         index: '3',
-                        title: '表单相关',
+                        title: '设备管理',
                         subs: [
                             {
-                                index: 'form',
-                                title: '基本表单'
+                                index: 'device',
+                                title: '设备信息'
                             },
                             {
-                                index: '3-2',
-                                title: '三级菜单',
-                                subs: [
-                                    {
-                                        index: 'editor',
-                                        title: '富文本编辑器'
-                                    },
-                                    {
-                                        index: 'markdown',
-                                        title: 'markdown编辑器'
-                                    },
-                                ]
+                                index: 'device-maintenance',
+                                title: '设备维护'
                             },
                             {
-                                index: 'upload',
-                                title: '文件上传'
-                            }
+                                index: 'device-repair',
+                                title: '设备维修'
+                            },
                         ]
                     },
                     {
-                        icon: 'el-icon-lx-emoji',
-                        index: 'icon',
-                        title: '自定义图标'
-                    },
-                    {
-                        icon: 'el-icon-lx-favor',
-                        index: 'charts',
-                        title: 'schart图表'
-                    },
-                    {
-                        icon: 'el-icon-rank',
-                        index: 'drag',
-                        title: '拖拽列表'
-                    },
-                    {
-                        icon: 'el-icon-lx-warn',
-                        index: '6',
-                        title: '错误处理',
+                        icon: 'el-icon-lx-unlock',
+                        index: '4',
+                        title: '权限管理',
                         subs: [
                             {
-                                index: 'permission',
-                                title: '权限测试'
+                                index: 'user',
+                                title: '用户管理'
                             },
                             {
-                                index: '404',
-                                title: '404页面'
-                            }
+                                index: 'acl',
+                                title: '权限管理'
+                            },
+                            {
+                                index: 'role',
+                                title: '角色管理'
+                            },
                         ]
-                    }
+                    },
+                    {
+                        icon: 'el-icon-lx-service',
+                        index: 'audit',
+                        title: '审核管理'
+                    },
+                    // {
+                    //     icon: 'el-icon-lx-cascades',
+                    //     index: 'table',
+                    //     title: '基础表格'
+                    // },
+                    // {
+                    //     icon: 'el-icon-lx-copy',
+                    //     index: 'tabs',
+                    //     title: 'tab选项卡'
+                    // },
+                    // {
+                    //     icon: 'el-icon-lx-calendar',
+                    //     index: '4',
+                    //     title: '表单相关',
+                    //     subs: [
+                    //         {
+                    //             index: 'form',
+                    //             title: '基本表单'
+                    //         },
+                    //         {
+                    //             index: '4-2',
+                    //             title: '三级菜单',
+                    //             subs: [
+                    //                 {
+                    //                     index: 'editor',
+                    //                     title: '富文本编辑器'
+                    //                 },
+                    //                 {
+                    //                     index: 'markdown',
+                    //                     title: 'markdown编辑器'
+                    //                 },
+                    //             ]
+                    //         },
+                    //         {
+                    //             index: 'upload',
+                    //             title: '文件上传'
+                    //         }
+                    //     ]
+                    // },
+                    // {
+                    //     icon: 'el-icon-lx-emoji',
+                    //     index: 'icon',
+                    //     title: '自定义图标'
+                    // },
+                    // {
+                    //     icon: 'el-icon-lx-favor',
+                    //     index: 'charts',
+                    //     title: 'schart图表'
+                    // },
+                    // {
+                    //     icon: 'el-icon-rank',
+                    //     index: 'drag',
+                    //     title: '拖拽列表'
+                    // },
+                    // {
+                    //     icon: 'el-icon-lx-warn',
+                    //     index: '5',
+                    //     title: '错误处理',
+                    //     subs: [
+                    //         {
+                    //             index: 'permission',
+                    //             title: '权限测试'
+                    //         },
+                    //         {
+                    //             index: '404',
+                    //             title: '404页面'
+                    //         }
+                    //     ]
+                    // }
                 ]
             }
         },
