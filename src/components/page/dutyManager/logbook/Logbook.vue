@@ -26,8 +26,11 @@
                 <el-table-column prop="going" label="工作情况">
                     <template slot-scope="scope">
                         <el-tag v-show="scope.row.going === '1'" type="success">正常</el-tag>
-                        <el-tag v-show="scope.row.going === '0'" type="danger">异常</el-tag>
+                        <el-tooltip :content="scope.row.description === '' ? '暂无异常信息' : '异常说明：' + scope.row.description" placement="top" effect="light">
+                            <el-tag v-show="scope.row.going === '0'" type="danger">异常</el-tag>
+                        </el-tooltip>
                     </template>
+                    
                 </el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">

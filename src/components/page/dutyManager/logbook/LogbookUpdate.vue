@@ -49,7 +49,7 @@
                 </el-table-column>
                 <el-table-column label="2岗" align='center'>
                     <template slot-scope="scope" style="width:100%">
-                        <el-select v-if='scope.row.type===1' v-model="dutyData.duty.p2.employeeIds" multiple placeholder="请选择">
+                        <el-select v-if='scope.row.type===1' v-model="dutyData.duty.p2.employeeIds" multiple placeholder="请选择" style="width:100%">
                             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
                             </el-option>
                         </el-select>

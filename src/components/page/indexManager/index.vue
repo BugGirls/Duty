@@ -6,7 +6,7 @@
              <el-col :span="8" style="padding-right: 0px;">
                 <el-card shadow="hover" class="mgb20" style="height:350px;">
                     <div class="user-info">
-                        <v-click></v-click>
+                        <v-click :size="250"></v-click>
                         <div class="user-info-cont">
                             <div class="user-info-name">{{ userInfo.username }}</div>
                             <div>{{ userInfo.email }}</div>
@@ -15,7 +15,7 @@
                 </el-card>
             </el-col>
             <el-col :span="16">
-                <el-card shadow="hover" style="height:350px;">
+                <el-card shadow="hover" style="height:350px;" >
                     <div slot="header" class="clearfix">
                         <span>待办事项</span>
                     </div>
@@ -28,7 +28,7 @@
                         <el-table-column>
                             <template slot-scope="scope">
                                 <div class="todo-item">
-                                    <span style="display: inline-block;width: 60%;" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</span>
+                                    <span class="el-60" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</span>
                                     <span style="float: right">提醒时间：{{scope.row.time}}</span>
                                     <span style="float: right; margin-right: 30px;">
                                         <el-tag type="success" v-if="scope.row.status === 0">未提醒</el-tag>
@@ -63,8 +63,8 @@
                     <div slot="header" class="clearfix">
                         <span>值班日志</span>
                     </div>
-                    <el-table height="300" style="width: 100%;" :data="logboolTableData" class="table" ref="multipleTable">
-                        <el-table-column prop="title" label="日志表名称" width="250"></el-table-column>
+                    <el-table height="300" style="width: 100%;" :data="logboolTableData" class="table" ref="multipleTable" :row-class-name="logbookTableClassName">
+                        <el-table-column prop="title" label="日志表名称" width="300"></el-table-column>
                         <el-table-column prop="going" label="工作情况">
                             <template slot-scope="scope">
                                 <el-tag v-show="scope.row.going === 1" type="success">正常</el-tag>
@@ -79,10 +79,10 @@
                     <div slot="header" class="clearfix">
                         <span>调度信息</span>
                     </div>
-                    <el-table height="300" style="width: 100%;" :data="dispatchTableData" class="table" ref="multipleTable">
+                    <el-table height="300" style="width: 100%;" :data="dispatchTableData" class="table" ref="multipleTable" :row-class-name="dispatchTableClassName">
                         <el-table-column prop="deptName" label="频率" width="150"></el-table-column>
                         <el-table-column prop="program" label="转播的节目"></el-table-column>
-                        <el-table-column prop="period" label="转播的周期" ></el-table-column>
+                        <el-table-column prop="period" label="转播的周期"></el-table-column>
                     </el-table>
                 </el-card>
             </el-col>
@@ -170,10 +170,7 @@ export default {
                 if (res.data.success) {
                     this.logboolTableData = []
                     _.forEach(res.data.data, (item, index) => {
-                        this.logboolTableData.push({
-                            title: item.title,
-                            going: item.going
-                        })
+                        this.logboolTableData.push(item)
                     })
                 } else {
                     this.$message.error(` ${res.data.msg} `)
@@ -193,11 +190,7 @@ export default {
                 if (res.data.success) {
                     this.dispatchTableData = []
                     _.forEach(res.data.data, (item, index) => {
-                        this.dispatchTableData.push({
-                            deptName: item.deptName,
-                            program: item.program,
-                            period: item.period
-                        })
+                        this.dispatchTableData.push(item)
                     })
                 } else {
                     this.$message.error(` ${res.data.msg} `)
@@ -219,6 +212,41 @@ export default {
                     this.$message.error(` ${res.data.msg} `)
                 }
             })
+        },
+        // 判断传入的日期是今天、之前还是以后
+        isToday(str) {
+            if (new Date(str).toDateString() === new Date().toDateString()) {
+                // 当天
+                return 0
+            } else if (new Date(str) < new Date()){
+                // 以前的日期
+                return -1
+            } else if (new Date(str) > new Date()) {
+                // 以后的日期
+                return 1
+            }
+        },
+        // 值班日志 表格字体样式
+        logbookTableClassName({row, rowIndex}) {
+            var style = this.isToday(row.dutyDate)
+            if (style == 0) {
+                return 'text-highligh'
+            } else if (style == -1) {
+                return 'text-before'
+            } else if (style == 1) {
+                return 'text-after'
+            }
+        },
+        // 调度信息 表格字体样式
+        dispatchTableClassName({row, rowIndex}) {
+            var style = this.isToday(row.beginDate)
+            if (style == 0) {
+                return 'text-highligh'
+            } else if (style == -1) {
+                return 'text-before'
+            } else if (style == 1) {
+                return 'text-after'
+            }
         }
     }
 }
@@ -339,4 +367,19 @@ export default {
     width: 100%;
     display: block;
 }
+.el-60 {
+    display: inline-block;
+    width: 60%;
+}
+.text-highligh {
+    font-size: 18px;
+    color: #F56C6C;
+    font-weight: 300;
+}
+/* .text-before {
+    color: #67C23A;
+}
+.text-after {
+    color: #409EFF;
+} */
 </style>

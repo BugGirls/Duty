@@ -16,7 +16,7 @@ Vue.prototype.$axios = axios
 Vue.prototype.$qs = qs
 Vue.prototype.$moment = moment
 
-// Vue.prototype.$axios.defaults.baseURL = 'http://172.20.0.21:8082'
+Vue.prototype.$axios.defaults.baseURL = 'http://172.20.0.21:8082'
 // Vue.prototype.$axios.defaults.baseURL = 'http://localhost:8082'
 
 // 请求的响应方法

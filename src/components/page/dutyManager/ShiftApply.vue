@@ -140,6 +140,15 @@
                 <el-form-item label="换班原因">
                     <el-alert :title="shiftForm.cause" type="info" :closable="false"></el-alert>
                 </el-form-item>
+                <el-form-item label="提交方式">
+                    <el-radio-group v-model="shiftForm.submitType" size="small">
+                        <el-alert v-show="shiftForm.submitType === '0'" title="网页提交" type="info" :closable="false"></el-alert>
+                        <el-alert v-show="shiftForm.submitType === '1'" title="微信提交" type="info" :closable="false"></el-alert>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="创建时间">
+                    <el-alert :title="shiftForm.createTime" type="info" :closable="false"></el-alert>
+                </el-form-item>
                 <el-form-item label="申请状态">
                     <el-radio-group v-model="shiftForm.status" size="small">
                         <el-alert v-show="shiftForm.applyStatus === '0'" title="正在审核" type="info" :closable="false"></el-alert>
@@ -149,15 +158,6 @@
                 </el-form-item>
                 <el-form-item label="驳回原因" v-show="shiftForm.rejectCause">
                     <el-alert :title="shiftForm.rejectCause" type="error" :closable="false"></el-alert>
-                </el-form-item>
-                <el-form-item label="提交方式">
-                    <el-radio-group v-model="shiftForm.submitType" size="small">
-                        <el-alert v-show="shiftForm.submitType === '0'" title="网页提交" type="info" :closable="false"></el-alert>
-                        <el-alert v-show="shiftForm.submitType === '1'" title="微信提交" type="info" :closable="false"></el-alert>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="创建时间">
-                    <el-alert :title="shiftForm.createTime" type="info" :closable="false"></el-alert>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">

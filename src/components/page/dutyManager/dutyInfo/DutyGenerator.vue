@@ -117,7 +117,7 @@ export default {
     },
     methods: {
         removeHandler() {
-            this.options = originOptions
+            this.options = this.originOptions
         },
         visiHandler(isShow) {
             if (!isShow) {
@@ -361,7 +361,7 @@ export default {
                     let {data} = res.data
                     if (data) {
                         this.prevMonthRestList = JSON.parse(res.data.data.residueData)
-                    }else {
+                    } else {
                         this.prevMonthRestList.splice(0)
                     }
                 } else {

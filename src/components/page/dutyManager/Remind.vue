@@ -44,15 +44,14 @@
                             </el-table-column>
                             <el-table-column>
                                 <template slot-scope="scope">
-                                    <!-- <div class="todo-item" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</div> -->
                                     <div class="todo-item">
-                                    <span style="display: inline-block;width: 60%;" :class="{'todo-item-del': scope.row.status}">{{scope.row.title}}</span>
-                                    <span style="float: right">提醒时间：{{scope.row.time}}</span>
-                                    <span style="float: right; margin-right: 30px;">
-                                        <el-tag type="success" v-if="scope.row.status === 0">未提醒</el-tag>
-                                        <el-tag type="info" v-if="scope.row.status === 1">已提醒</el-tag>
-                                    </span>
-                                </div>
+                                        <span :class="{'todo-item-del': scope.row.status, 'el-60': true}">{{scope.row.title}}</span>
+                                        <span style="float: right">提醒时间：{{scope.row.time}}</span>
+                                        <span style="float: right; margin-right: 30px;">
+                                            <el-tag type="success" v-if="scope.row.status === 0">未提醒</el-tag>
+                                            <el-tag type="info" v-if="scope.row.status === 1">已提醒</el-tag>
+                                        </span>
+                                    </div>
                                 </template>
                             </el-table-column>
                             <el-table-column width="100">
@@ -550,5 +549,10 @@ export default {
 .todo-item-del {
     text-decoration: line-through;
     color: #999;
+}
+
+.el-60 {
+    display: inline-block;
+    width: 60%;
 }
 </style>

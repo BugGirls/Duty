@@ -1,7 +1,7 @@
 const connectSocket = function (cb) {
     // 创建websocket连接
-    window.webSocket = new WebSocket('ws://localhost:8082/websocket');
-    // window.webSocket = new WebSocket('ws://172.20.0.21:8082/websocket');
+    // window.webSocket = new WebSocket('ws://localhost:8082/websocket');
+    window.webSocket = new WebSocket('ws://172.20.0.21:8082/websocket');
     
     // 建立连接
     webSocket.onopen = evt => {

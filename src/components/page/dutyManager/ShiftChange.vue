@@ -101,7 +101,7 @@ export default {
     },
     watch:{
         cardNum:function(newVal,oldVal) {
-            if(newVal!== oldVal){
+            if(newVal !== oldVal) {
                 this.loadSlotCardEmployee()
             }
         }

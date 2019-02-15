@@ -103,6 +103,7 @@ export default {
             })
         },
         selectType() {
+            this.isShowAnswer = false
             this.loadQuestionListByCategory()
         },
         // 加载选择试题分类下的试题列表
@@ -142,10 +143,11 @@ export default {
         //     return shuffled.slice(min);
         // },
         seeAnswer() {
-            this.isShowAnswer = true;
+            this.isShowAnswer = true
         },
         nextProblem() {
-            this.isShowAnswer = false;
+            console.log(this.questionList)
+            this.isShowAnswer = false
             if (this.questionList.length == 1) {
                 // 如果等于1，则为最后一题，显示重来提示框
                 this.againVisible = true

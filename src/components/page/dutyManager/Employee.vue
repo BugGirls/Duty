@@ -328,6 +328,7 @@
             },
             // 上传图片
             uploadImage(img) {
+                console.log(img)
                 let postData = this.$qs.stringify({
                     base64Data: img
                 })

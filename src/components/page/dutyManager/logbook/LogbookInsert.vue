@@ -49,7 +49,7 @@
                 </el-table-column>
                 <el-table-column label="2岗" align='center'>
                     <template slot-scope="scope" style="width:100%">
-                        <el-select v-if='scope.row.type===1' v-model="dutyData.duty.p2.employeeIds" multiple placeholder="请选择">
+                        <el-select v-if='scope.row.type===1' v-model="dutyData.duty.p2.employeeIds" multiple placeholder="请选择" style="width:100%">
                             <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
                             </el-option>
                         </el-select>
@@ -162,6 +162,7 @@ export default {
     },
     created() {
         this.loadEmployeeSelect()
+        this.loadCurrentDateDuty()
     },
     methods: {
         // 加载值班人员选择列表
@@ -180,6 +181,37 @@ export default {
                     this.$message.error(` ${res.data.msg} `)
                 }
             })
+        },
+        // 加载当前时间的值班表
+        loadCurrentDateDuty() {
+            this.dutyList = []
+            this.tableList = []
+            this.$axios('/dutyInfo/get_detail_by_now.json').then((res) => {
+                if (res.data.success) {
+                    // this.tableList = []
+                    // this.dutyList = []
+                    // this.tableList.push(res.data.data)
+                    this.loadEmployeeList(res.data.data)
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
+            })
+        },
+        // 加载当前班期值班人员列表
+        loadEmployeeList(employeeList) {
+            if (employeeList.shiftChangeList && employeeList.shiftChangeList.length > 0) {
+                _.forEach(employeeList.shiftChangeList, (item, index) => {
+                    let employee = item.employee
+                    let option = {
+                        shiftId: item.id,
+                        id: employee.id,
+                        img: employee.photoUrl,
+                        name: employee.name,
+                        gender: employee.gender == 1 ? '男' : '女'
+                    }
+                    this.dutyList.push(option)
+                })
+            }
         },
         // 提交
         submitLogbook() {
