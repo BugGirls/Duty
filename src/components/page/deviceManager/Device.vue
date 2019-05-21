@@ -37,14 +37,14 @@
                             <el-button type="primary" style="float: right" icon="el-icon-lx-add" size="mini" @click="handleDeviceInsert()">添加设备</el-button>
                         </div>
                         <el-table border :data="data" class="table" ref="multipleTable">
-                            <el-table-column prop="id" label="ID"></el-table-column>
-                            <el-table-column prop="name" label="设备名称" width="200"></el-table-column>
+                            <!-- <el-table-column prop="id" label="ID"></el-table-column> -->
+                            <el-table-column prop="name" label="设备名称"></el-table-column>
                             <el-table-column prop="brand" label="品牌"></el-table-column>
-                            <el-table-column prop="model" label="型号"></el-table-column>
-                            <el-table-column prop="serial" label="序列号" width="150"></el-table-column>
-                            <el-table-column prop="area" label="存放地"></el-table-column>
-                            <el-table-column prop="buyTime" label="购买日期" width="150"></el-table-column>
-                            <el-table-column prop="startTime" label="启用日期" width="150"></el-table-column>
+                            <!-- <el-table-column prop="model" label="型号"></el-table-column> -->
+                            <!-- <el-table-column prop="serial" label="序列号"></el-table-column> -->
+                            <!-- <el-table-column prop="area" label="存放地"></el-table-column> -->
+                            <el-table-column prop="buyTime" label="购买日期"></el-table-column>
+                            <el-table-column prop="startTime" label="启用日期"></el-table-column>
                             <el-table-column prop="status" label="使用状态">
                                 <template slot-scope="scope">
                                     <el-tag v-show="scope.row.status === '1'">在用</el-tag>
@@ -54,10 +54,11 @@
                                     <el-tag v-show="scope.row.status === '5'" type="danger">报废</el-tag>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="操作" align="center" width="150">
+                            <el-table-column label="操作" align="center" width="200">
                                 <template slot-scope="scope">
-                                    <el-button type="text" icon="el-icon-edit" @click="handleDeviceEdit(scope.$index, scope.row)">编辑</el-button>
-                                    <el-button type="text" icon="el-icon-delete" class="red" @click="handleDeviceDelete(scope.$index, scope.row)">删除</el-button>
+                                    <el-button type="text" icon="el-icon-view" @click="handleDeviceView(scope.$index, scope.row)">预览</el-button>
+                                    <el-button type="text" icon="el-icon-edit" :disabled="!scope.row.updateBtnEdit" @click="handleDeviceEdit(scope.$index, scope.row)">编辑</el-button>
+                                    <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleDeviceDelete(scope.$index, scope.row)">删除</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -132,7 +133,47 @@
             </span>
         </el-dialog>
 
-        <!-- 新增设备 -->
+        <!-- 预览设备信息 -->
+        <el-dialog title="预览设备信息" :visible.sync="viewDeviceVisible" width="33%">
+            <el-form ref="form" label-position="right" :model="deviceDetail" label-width="150px">
+                <el-form-item label="ID">
+                    <el-alert :title="deviceDetail.id" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="设备名称">
+                    <el-alert :title="deviceDetail.name" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="品牌">
+                    <el-alert :title="deviceDetail.brand" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="型号">
+                    <el-alert :title="deviceDetail.model" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="序列号">
+                    <el-alert :title="deviceDetail.serial" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="存放地">
+                    <el-alert :title="deviceDetail.area" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="购买日期">
+                    <el-alert :title="deviceDetail.buyTime" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="启用日期">
+                    <el-alert :title="deviceDetail.startTime" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-tag v-show="deviceDetail.status === '1'">在用</el-tag>
+                    <el-tag v-show="deviceDetail.status === '2'" type="success">备件</el-tag>
+                    <el-tag v-show="deviceDetail.status === '3'" type="info">故障</el-tag>
+                    <el-tag v-show="deviceDetail.status === '4'" type="warning">待报废</el-tag>
+                    <el-tag v-show="deviceDetail.status === '5'" type="danger">报废</el-tag>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="viewDeviceVisible = false">取 消</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 添加设备信息 -->
         <el-dialog title="添加设备信息" :visible.sync="insertDeviceVisible" width="35%">
             <el-form ref="form" label-position="right" :rules="deviceRules" :model="deviceForm" label-width="100px">
                 <el-form-item label="选择分类" prop="categoryId">
@@ -177,7 +218,7 @@
             </span>
         </el-dialog>
 
-        <!-- 修改设备 -->
+        <!-- 修改设备信息 -->
         <el-dialog title="修改设备信息" :visible.sync="updateDeviceVisible" width="33%">
             <el-form ref="form" label-position="right" :rules="deviceRules" :model="deviceForm" label-width="100px">
                 <el-form-item label="选择分类" prop="categoryId">
@@ -222,8 +263,8 @@
             </span>
         </el-dialog>
 
-        <!-- 删除提示框 -->
-        <el-dialog title="提示" :visible.sync="delDeviceVisible" width="300px" center>
+        <!-- 删除设备信息 -->
+        <el-dialog title="删除设备信息" :visible.sync="delDeviceVisible" width="300px" center>
             <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="delDeviceVisible = false">取 消</el-button>
@@ -255,7 +296,9 @@ export default {
             insertDeviceVisible: false,
             updateDeviceVisible: false,
             delDeviceVisible: false,
+            viewDeviceVisible: false,
             idx: -1,
+            deviceDetail: '',
             categoryForm: {
                 id: '',
                 parentId: '',
@@ -317,6 +360,7 @@ export default {
     },
     created() {
         this.loadCategoryTree()
+        this.loadDeviceList()
     },
     computed: {
         data() {
@@ -336,6 +380,25 @@ export default {
                 // 递归渲染设备类别树选择列表
                 this.options = []
                 this.recursiveRenderDeviceCategorySelect(this.categoryTree, 1)
+            })
+        },
+        loadDeviceList() {
+            let postData = this.$qs.stringify({
+                pageNum: this.pageNum,
+                pageSize: this.pageSize
+            })
+            this.$axios({
+                method: 'post',
+                url: '/deviceInfo/page.json',
+                data: postData
+            }).then((res) => {
+                if (res.data.success) {
+                    var page = res.data.data
+                    this.tableData = page.list
+                    this.total = page.total
+                } else {
+                    this.$message.error(` ${res.data.msg} `)
+                }
             })
         },
         // 递归渲染设备类别树选择列表
@@ -469,7 +532,11 @@ export default {
         },
         handleCurrentChange(val) {
             this.pageNum = val
-            this.loadDeviceListByCategoryId(this.deviceForm.categoryId)
+            if (this.deviceForm.categoryId) {
+                this.loadDeviceListByCategoryId(this.deviceForm.categoryId)
+            } else {
+                this.loadDeviceList()
+            }
         },
         loadDeviceListByCategoryId(categoryId) {
             let postData = this.$qs.stringify({
@@ -479,7 +546,7 @@ export default {
             })
             this.$axios({
                 method: 'post',
-                url: '/deviceInfo/page.json',
+                url: '/deviceInfo/page_by_category.json',
                 data: postData
             }).then((res) => {
                 if (res.data.success) {
@@ -492,6 +559,10 @@ export default {
             })
         },
 
+        handleDeviceView(index, row) {
+            this.viewDeviceVisible = true
+            this.deviceDetail = row
+        },
         handleDeviceInsert() {
             this.insertDeviceVisible = true
             this.deviceForm = {
@@ -620,7 +691,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .custom-tree-node {
     flex: 1;
     display: flex;

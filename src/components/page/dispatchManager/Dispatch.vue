@@ -17,29 +17,26 @@
                 </el-button-group>
             </div>
             <el-table border :data="data" class="table" ref="multipleTable">
-                <el-table-column prop="id" label="ID" width="170"></el-table-column>
                 <el-table-column prop="deptName" label="频率" width="150"></el-table-column>
-                <el-table-column prop="program" label="转播的节目" width="200"></el-table-column>
+                <el-table-column prop="program" label="转播的节目"></el-table-column>
                 <el-table-column prop="longRebroadcast" label="长期转播">
                     <template slot-scope="scope">
                         <el-tag v-show="scope.row.longRebroadcast === '1'">是</el-tag>
                         <el-tag v-show="scope.row.longRebroadcast !== '1'" type="danger">否</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="deviceInfo" label="设备信息" width="200"></el-table-column>
-                <el-table-column prop="period" label="转播的周期" width="200"></el-table-column>
-                <el-table-column prop="timeInterval" label="转播的时段" width="200"></el-table-column>
+                <el-table-column prop="deviceInfo" label="设备信息"></el-table-column>
                 <el-table-column prop="status" label="状态">
                     <template slot-scope="scope">
                         <el-tag v-show="scope.row.status === '1'">有效</el-tag>
                         <el-tag v-show="scope.row.status !== '1'" type="danger">无效</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="remark" label="备注" width="200"></el-table-column>
-                <el-table-column label="操作" width="150" align="center">
+                <el-table-column label="操作" width="200" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-view" @click="handlePreview(scope.$index, scope.row)">预览</el-button>
+                        <el-button type="text" icon="el-icon-edit" :disabled="!scope.row.updateBtnEdit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -49,7 +46,7 @@
         </div>
 
         <!-- 新增弹出框 -->
-        <el-dialog title="新增调度信息" :visible.sync="insertVisible" width="36%">
+        <el-dialog title="新增调度信息" :visible.sync="insertVisible" width="60%">
             <el-form ref="form" label-position="right" :rules="rules" :model="dispatchForm" label-width="100px">
                 <el-form-item label="所属频率" prop="deptId">
                     <el-select v-model="dispatchForm.deptId" clearable placeholder="请选择所属频率">
@@ -70,8 +67,9 @@
                         <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="选择设备" prop="deviceIds" v-show="deviceInfos.length > 0">
-                    <el-checkbox-group v-model="dispatchForm.deviceIds" size="small">
+                <el-form-item label="选择设备" prop="deviceIds" v-show="dispatchForm.categoryId != ''">
+                    <el-tag type="danger" v-if="deviceInfos.length == 0">当前类别下没有设备，请添加设备</el-tag>
+                    <el-checkbox-group v-model="dispatchForm.deviceIds" size="small" v-show="deviceInfos.length > 0">
                         <el-checkbox-button v-for="item in deviceInfos" :label="item.value" :key="item.label">{{ item.label }}</el-checkbox-button>
                     </el-checkbox-group>
                 </el-form-item>
@@ -79,7 +77,7 @@
                     <el-date-picker v-model="dispatchForm.period" type="daterange" range-separator="至"
                     start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
                 </el-form-item>
-                <el-form-item label="转播周期" prop="timeFrame">
+                <el-form-item label="转播时段" prop="timeFrame">
                     <el-time-picker is-range v-model="dispatchForm.timeFrame" value-format="HH:mm:ss" range-separator="至"
                         start-placeholder="开始时间" end-placeholder="结束时间" placeholder="选择时间范围"></el-time-picker>
                 </el-form-item>
@@ -100,7 +98,7 @@
         </el-dialog>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑调度信息" :visible.sync="editVisible" width="36%">
+        <el-dialog title="编辑调度信息" :visible.sync="editVisible" width="60%">
             <el-form ref="form" label-position="right" :rules="rules" :model="dispatchForm" label-width="100px">
                 <el-form-item label="所属频率" prop="deptId">
                     <el-select v-model="dispatchForm.deptId" clearable placeholder="请选择所属频率">
@@ -121,8 +119,9 @@
                         <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="选择设备" prop="deviceIds" v-show="deviceInfos.length > 0">
-                    <el-checkbox-group v-model="dispatchForm.deviceIds" size="small">
+                <el-form-item label="选择设备" prop="deviceIds" v-show="dispatchForm.categoryId != ''">
+                    <el-tag type="danger" v-if="deviceInfos.length == 0">当前类别下没有设备，请添加设备</el-tag>
+                    <el-checkbox-group v-model="dispatchForm.deviceIds" size="small" v-show="deviceInfos.length > 0">
                         <el-checkbox-button v-for="item in deviceInfos" :label="item.value" :key="item.label">{{ item.label }}</el-checkbox-button>
                     </el-checkbox-group>
                 </el-form-item>
@@ -130,7 +129,7 @@
                     <el-date-picker v-model="dispatchForm.period" type="daterange" range-separator="至"
                     start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
                 </el-form-item>
-                <el-form-item label="转播周期" prop="timeFrame">
+                <el-form-item label="转播时段" prop="timeFrame">
                     <el-time-picker is-range v-model="dispatchForm.timeFrame" value-format="HH:mm:ss" range-separator="至"
                         start-placeholder="开始时间" end-placeholder="结束时间" placeholder="选择时间范围"></el-time-picker>
                 </el-form-item>
@@ -147,6 +146,41 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="editVisible = false">取 消</el-button>
                 <el-button type="primary" @click="dispatchEdit('form')">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 调度信息预览 -->
+        <el-dialog title="预览调度信息" :visible.sync="viewVisible" width="40%">
+            <el-form ref="form" label-position="right" label-width="100px">
+                <el-form-item label="所属频率">
+                    <el-alert :title="dispatchDetail.deptName" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="转播的节目">
+                    <el-alert :title="dispatchDetail.program" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="是否长期转播">
+                    <el-tag size="medium" type="success" v-show="dispatchDetail.longRebroadcast == 1">是</el-tag>
+                    <el-tag size="medium" type="danger" v-show="dispatchDetail.longRebroadcast == 0">否</el-tag>
+                </el-form-item>
+                <el-form-item label="设备信息">
+                    <el-alert :title="dispatchDetail.deviceInfo" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="转播周期">
+                    <el-alert :title="dispatchDetail.period" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="转播时段">
+                    <el-alert :title="dispatchDetail.timeInterval" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-tag size="medium" v-show="dispatchDetail.status == 1" type="success">有效</el-tag>
+                    <el-tag size="medium" v-show="dispatchDetail.status != 1" type="danger">无效</el-tag>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-alert :title="dispatchDetail.remark" type="info" :closable="false"></el-alert>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="viewVisible = false">关  闭</el-button>
             </span>
         </el-dialog>
 
@@ -174,6 +208,7 @@ export default {
             insertVisible: false,
             editVisible: false,
             delVisible: false,
+            viewVisible: false,
             deptOptions: [],
             categoryOptions: [],
             deviceInfos: [],
@@ -181,6 +216,7 @@ export default {
             defaultCategoryId: '',
             idx: -1,
             selectDeptId: '',
+            dispatchDetail: '',
             dispatchForm: {
                 id: '',
                 deptId: '',
@@ -335,9 +371,15 @@ export default {
         },
         cagegoryChange() {
             this.deviceInfos = []
+            this.dispatchForm.deviceIds = []
             this.getDeviceByCategoryId()
         },
+        // 通过设备类别获取设备列表
         getDeviceByCategoryId() {
+            if (!this.dispatchForm.categoryId) {
+                return
+            }
+
             let postData = this.$qs.stringify({
                 categoryId: this.dispatchForm.categoryId
             })
@@ -347,17 +389,26 @@ export default {
                 data: postData
             }).then((res) => {
                 if (res.data.success) {
-                    _.forEach(res.data.data, (device, index) => {
-                        let option = {
-                            value: device.id,
-                            label: device.name
-                        }
-                        this.deviceInfos.push(option)
-                    })
+                    if(res.data.data.length > 0) {
+                        _.forEach(res.data.data, (device, index) => {
+                            let option = {
+                                value: device.id,
+                                label: device.name
+                            }
+                            this.deviceInfos.push(option)
+                        })
+                    } else {
+                        console.log(` 当前设备类别下没有设备信息 `)
+                    }
                 } else {
                     this.$message.error(` ${res.data.msg} `)
                 }
             })
+        },
+        handlePreview(index, row) {
+            console.log(row)
+            this.dispatchDetail = row
+            this.viewVisible = true
         },
         handleInsert() {
             this.insertVisible = true
@@ -405,7 +456,7 @@ export default {
                     })
                 } else {
                     this.$message.error(` 字段填写不完整 `)
-                    return false;
+                    return false
                 }
             })
         },
@@ -496,7 +547,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .table{
     width: 100%;
     font-size: 14px;

@@ -22,8 +22,8 @@
                             <el-input v-if='scope.row.type===5' type="textarea" :rows="2" placeholder="请输入内容" v-model="dutyData.remark">
                             </el-input>
                             <template v-if='scope.row.type===6'>
-                                <el-radio v-model="dutyData.shift" label="1">早班</el-radio>
-                                <el-radio v-model="dutyData.shift" label="0">晚班</el-radio>
+                                <el-radio v-model="dutyData.shift" label="1">白班</el-radio>
+                                <el-radio v-model="dutyData.shift" label="0">夜班</el-radio>
                             </template>
                         </template>
                 </el-table-column>
@@ -174,31 +174,32 @@ export default {
         },
         loadEmplyeeInfo() {
             let detail = this.logbookDetail
+            console.log(detail)
             if (detail) {
                 if (detail.logbookDetailDTOList && detail.logbookDetailDTOList.length > 0) {
                     _.forEach(detail.logbookDetailDTOList, logbookDetail => {
                         if (logbookDetail.position == 1) {
                             this.dutyData.duty.one = {
                                 id: logbookDetail.id,
-                                employeeIds: logbookDetail.employeeIdList,
+                                employeeId: logbookDetail.employeeId,
                                 time: logbookDetail.arrivalTime
                             }
                         } else if (logbookDetail.position == 2) {
                             this.dutyData.duty.two = {
                                 id: logbookDetail.id,
-                                employeeIds: logbookDetail.employeeIdList,
+                                employeeId: logbookDetail.employeeId,
                                 time: logbookDetail.arrivalTime
                             }
                         } else if (logbookDetail.position == 3) {
                             this.dutyData.duty.p1 = {
                                 id: logbookDetail.id,
-                                employeeIds: logbookDetail.employeeIdList,
+                                employeeId: logbookDetail.employeeId,
                                 time: logbookDetail.arrivalTime
                             }
                         } else if (logbookDetail.position == 4) {
                             this.dutyData.duty.p2 = {
                                 id: logbookDetail.id,
-                                employeeIds: logbookDetail.employeeIdList,
+                                employeeId: logbookDetail.employeeId,
                                 time: logbookDetail.arrivalTime
                             }
                         }

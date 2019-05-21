@@ -15,17 +15,17 @@
                 </el-button-group>
             </div>
             <el-table border :data="data" class="table" ref="multipleTable">
-                <el-table-column prop="id" label="ID" width="170"></el-table-column>
-                <el-table-column prop="categoryName" label="设备类别" width="200"></el-table-column>
-                <el-table-column prop="deviceNames" label="维护的设备" width="150">
+                <!-- <el-table-column prop="id" label="ID" width="170"></el-table-column> -->
+                <el-table-column prop="categoryName" label="设备类别"></el-table-column>
+                <el-table-column prop="deviceNames" label="维护的设备">
                     <template slot-scope="scope">
                         <label v-show="scope.row.deviceNames === ''">暂无</label>
                         <label v-show="scope.row.deviceNames !== ''">{{scope.row.deviceNames}}</label>
                     </template>
                 </el-table-column>
-                <el-table-column prop="maintenanceTime" label="维护时间" width="200"></el-table-column>
-                <el-table-column prop="content" label="维护内容" width="200"></el-table-column>
-                <el-table-column prop="question" label="维护中遇到的问题" width="200">
+                <el-table-column prop="maintenanceTime" label="维护时间"></el-table-column>
+                <el-table-column prop="content" label="维护内容"></el-table-column>
+                <!-- <el-table-column prop="question" label="维护中遇到的问题" width="200">
                     <template slot-scope="scope">
                         <label v-show="scope.row.question === ''">暂无</label>
                         <label v-show="scope.row.question !== ''">{{scope.row.question}}</label>
@@ -42,17 +42,18 @@
                         <label v-show="scope.row.testSituation === ''">暂无</label>
                         <label v-show="scope.row.testSituation !== ''">{{scope.row.testSituation}}</label>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column prop="status" label="状态">
                     <template slot-scope="scope">
                         <el-tag v-show="scope.row.status === '1'">有效</el-tag>
                         <el-tag v-show="scope.row.status !== '1'" type="danger">无效</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="150" align="center">
+                <el-table-column label="操作" width="200" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-view" @click="handleView(scope.$index, scope.row)">预览</el-button>
+                        <el-button type="text" icon="el-icon-edit" :disabled="!scope.row.updateBtnEdit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -60,6 +61,47 @@
                 <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="total" :page-size="pageSize"></el-pagination>
             </div>
         </div>
+
+        <!-- 预览 -->
+        <el-dialog title="预览" :visible.sync="viewVisible" width="33%">
+            <el-form ref="form" label-position="right" :model="deviceMainDetail" label-width="150px">
+                <el-form-item label="ID">
+                    <el-alert :title="deviceMainDetail.id" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="设备类别">
+                    <el-alert :title="deviceMainDetail.categoryName" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维护的设备">
+                    <el-alert v-show="deviceMainDetail.deviceNames !== ''" :title="deviceMainDetail.deviceNames" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="deviceMainDetail.deviceNames === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维护时间">
+                    <el-alert :title="deviceMainDetail.maintenanceTime" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维护内容">
+                    <el-alert :title="deviceMainDetail.content" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维护中遇到的问题">
+                    <el-alert v-show="deviceMainDetail.question !== ''" :title="deviceMainDetail.question" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="deviceMainDetail.question === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="问题的解决方法">
+                    <el-alert v-show="deviceMainDetail.answer !== ''" :title="deviceMainDetail.answer" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="deviceMainDetail.answer === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="测试情况">
+                    <el-alert v-show="deviceMainDetail.testSituation !== ''" :title="deviceMainDetail.testSituation" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="deviceMainDetail.testSituation === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-tag v-show="deviceMainDetail.status === '1'">有效</el-tag>
+                    <el-tag v-show="deviceMainDetail.status !== '1'" type="danger">无效</el-tag>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="viewVisible = false">取 消</el-button>
+            </span>
+        </el-dialog>
 
         <!-- 新增弹出框 -->
         <el-dialog title="新增维护信息" :visible.sync="insertVisible" width="40%">
@@ -103,7 +145,7 @@
         </el-dialog>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑调度信息" :visible.sync="editVisible" width="36%">
+        <el-dialog title="编辑维护信息" :visible.sync="editVisible" width="40%">
             <el-form ref="form" label-position="right" :rules="rules" :model="form" label-width="100px">
                 <el-form-item label="设备类别" prop="categoryId">
                     <el-select v-model="form.categoryId" clearable placeholder="请选择设备类别" @change="cagegoryChange">
@@ -144,7 +186,7 @@
         </el-dialog>
 
         <!-- 删除提示框 -->
-        <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
+        <el-dialog title="删除维护信息" :visible.sync="delVisible" width="300px" center>
             <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="delVisible = false">取 消</el-button>
@@ -166,9 +208,11 @@ export default {
             pageNum: 1,
             pageSize: 10,
             total: 0,
+            deviceMainDetail: '',
             insertVisible: false,
             editVisible: false,
             delVisible: false,
+            viewVisible: false,
             idx: -1,
             del_id: '',
             form: {
@@ -215,11 +259,20 @@ export default {
         }
     },
     methods: {
-        handleCurrentChange() {
-
+        handleCurrentChange(val) {
+            this.pageNum = val
+            this.getData()
         },
         getData() {
-            this.$axios('/deviceMaintenance/page.json').then((res)=>{
+            let postData = this.$qs.stringify({
+                pageNum: this.pageNum,
+                pageSize: this.pageSize
+            })
+            this.$axios({
+                method: 'post',
+                url: '/deviceMaintenance/page.json',
+                data: postData
+            }).then((res)=>{
                 if (res.data.success) {
                     let page = res.data.data
                     this.tableData = page.list
@@ -289,6 +342,11 @@ export default {
                     this.$message.error(` ${res.data.msg} `)
                 }
             })
+        },
+        handleView(index, row) {
+            this.deviceMainDetail = row
+            console.log(row)
+            this.viewVisible = true
         },
         handleInsert() {
             this.insertVisible = true
@@ -414,7 +472,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .handle-box {
     margin-bottom: 20px;
 }

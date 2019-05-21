@@ -15,28 +15,29 @@
                 </el-button-group>
             </div>
             <el-table border :data="data" class="table" ref="multipleTable">
-                <el-table-column prop="id" label="ID" width="170"></el-table-column>
-                <el-table-column prop="categoryName" label="设备类别" width="200"></el-table-column>
-                <el-table-column prop="deviceName" label="维护的设备" width="150"></el-table-column>
-                <el-table-column prop="breakdownTime" label="故障时间" width="200"></el-table-column>
-                <el-table-column prop="repairTime" label="维修时间" width="200"></el-table-column>
-                <el-table-column prop="content" label="维修内容" width="200"></el-table-column>
-                <el-table-column prop="testSituation" label="测试情况" width="200">
+                <!-- <el-table-column prop="id" label="ID" width="170"></el-table-column> -->
+                <el-table-column prop="categoryName" label="设备类别"></el-table-column>
+                <el-table-column prop="deviceName" label="维护的设备"></el-table-column>
+                <el-table-column prop="breakdownTime" label="故障时间"></el-table-column>
+                <el-table-column prop="repairTime" label="维修时间"></el-table-column>
+                <!-- <el-table-column prop="content" label="维修内容"></el-table-column> -->
+                <!-- <el-table-column prop="testSituation" label="测试情况">
                     <template slot-scope="scope">
                         <label v-show="scope.row.testSituation === ''">暂无</label>
                         <label v-show="scope.row.testSituation !== ''">{{scope.row.testSituation}}</label>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
                 <el-table-column prop="status" label="状态">
                     <template slot-scope="scope">
                         <el-tag v-show="scope.row.status === '1'">有效</el-tag>
                         <el-tag v-show="scope.row.status !== '1'" type="danger">无效</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" width="150" align="center">
+                <el-table-column label="操作" width="200" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-view" @click="handleView(scope.$index, scope.row)">预览</el-button>
+                        <el-button type="text" icon="el-icon-edit" :disabled="!scope.row.updateBtnEdit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -44,6 +45,43 @@
                 <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="total" :page-size="pageSize"></el-pagination>
             </div>
         </div>
+
+        <!-- 预览维修信息 -->
+        <el-dialog title="预览维修信息" :visible.sync="viewVisible" width="33%">
+            <el-form ref="form" label-position="right" :model="repairDetail" label-width="150px">
+                <el-form-item label="ID">
+                    <el-alert :title="repairDetail.id" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="设备类别">
+                    <el-alert :title="repairDetail.categoryName" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维护的设备">
+                    <el-alert v-show="repairDetail.deviceName !== ''" :title="repairDetail.deviceName" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="repairDetail.deviceName === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="故障时间">
+                    <el-alert :title="repairDetail.breakdownTime" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维修时间">
+                    <el-alert :title="repairDetail.repairTime" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="维修内容">
+                    <el-alert v-show="repairDetail.content !== ''" :title="repairDetail.content" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="repairDetail.content === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="测试情况">
+                    <el-alert v-show="repairDetail.testSituation !== ''" :title="repairDetail.testSituation" type="info" :closable="false"></el-alert>
+                    <el-alert v-show="repairDetail.testSituation === ''" title="暂无" type="info" :closable="false"></el-alert>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-tag v-show="repairDetail.status === '1'">有效</el-tag>
+                    <el-tag v-show="repairDetail.status !== '1'" type="danger">无效</el-tag>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="viewVisible = false">取 消</el-button>
+            </span>
+        </el-dialog>
 
         <!-- 新增弹出框 -->
         <el-dialog title="新增维护信息" :visible.sync="insertVisible" width="40%">
@@ -84,7 +122,7 @@
         </el-dialog>
 
         <!-- 编辑弹出框 -->
-        <el-dialog title="编辑调度信息" :visible.sync="editVisible" width="36%">
+        <el-dialog title="编辑维护信息" :visible.sync="editVisible" width="36%">
             <el-form ref="form" label-position="right" :rules="rules" :model="form" label-width="100px">
                 <el-form-item label="设备类别" prop="categoryId">
                     <el-select v-model="form.categoryId" clearable placeholder="请选择设备类别" @change="cagegoryChange">
@@ -147,8 +185,10 @@ export default {
             insertVisible: false,
             editVisible: false,
             delVisible: false,
+            viewVisible: false,
             idx: -1,
             del_id: '',
+            repairDetail: '',
             form: {
                 id: '',
                 categoryId: '',
@@ -191,11 +231,20 @@ export default {
         }
     },
     methods: {
-        handleCurrentChange() {
-
+        handleCurrentChange(val) {
+            this.pageNum = val
+            this.getData()
         },
         getData() {
-            this.$axios('/deviceRepair/page.json').then((res)=>{
+            let postData = this.$qs.stringify({
+                pageNum: this.pageNum,
+                pageSize: this.pageSize
+            })
+            this.$axios({
+                method: 'post',
+                url: '/deviceRepair/page.json',
+                data: postData
+            }).then((res)=>{
                 if (res.data.success) {
                     let page = res.data.data
                     this.tableData = page.list
@@ -265,6 +314,11 @@ export default {
                     this.$message.error(` ${res.data.msg} `)
                 }
             })
+        },
+        handleView(index, row) {
+            this.viewVisible = true
+            this.repairDetail = row
+            console.log(row)
         },
         handleInsert() {
             this.insertVisible = true
@@ -386,7 +440,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .handle-box {
     margin-bottom: 20px;
 }

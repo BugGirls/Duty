@@ -28,7 +28,7 @@
                 </template>
                 </el-table-column>
             </el-table-column>
-            <el-table-column label='8:30-24:00' align='center'>
+            <el-table-column label='8:30-18:00' align='center'>
                 <el-table-column label='带班' align='center'>
                 <template slot-scope="scope">
                     <span>{{ optionsSelect(scope.row.two1) }}</span>
@@ -45,7 +45,7 @@
                 </template>
                 </el-table-column>
             </el-table-column>
-            <!-- <el-table-column label='18:00-0:00' align='center'>
+            <el-table-column label='18:00-24:00' align='center'>
                 <el-table-column label='带班' align='center'>
                 <template slot-scope="scope">
                     <span>{{ optionsSelect(scope.row.three1) }}</span>
@@ -61,7 +61,7 @@
                     <span>{{ optionsSelect(scope.row.three3) }}</span>
                 </template>
                 </el-table-column>
-            </el-table-column> -->
+            </el-table-column>
             <el-table-column label='休息' align='center'>
                 <template slot-scope="scope">
                 <span>{{ optionsSelect(scope.row.rest) }}</span>

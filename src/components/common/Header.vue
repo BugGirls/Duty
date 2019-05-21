@@ -5,6 +5,7 @@
             <i class="el-icon-menu"></i>
         </div>
         <div class="logo">值班管理系统</div>
+        <div class="version">v1.3</div>
         <div class="header-right">
             <div class="header-user-con">
                 <!-- 全屏显示 -->
@@ -36,7 +37,7 @@
                         <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
                             <el-dropdown-item>项目仓库</el-dropdown-item>
                         </a> -->
-                        <el-dropdown-item divided  command="loginout">退出登录</el-dropdown-item>
+                        <el-dropdown-item command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -139,8 +140,15 @@
     }
     .header .logo{
         float: left;
-        width:250px;
+        /* width:250px; */
         line-height: 70px;
+    }
+    .header .version{
+        float: left;
+        /* width:250px; */
+        line-height: 78px;
+        font-size: 16px;
+        margin-left: 10px;
     }
     .header-right{
         float: right;

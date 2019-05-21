@@ -11,19 +11,16 @@
                             <el-select v-if='scope.row.type===1' v-model="dutyData.duty.one.employeeIds" multiple placeholder="请选择" style="width:100%">
                                 <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
-                            <el-time-picker v-if='scope.row.type===2' value-format='HH:mm:ss' v-model="dutyData.duty.one.time" placeholder="时间" style="width:100%">
-                            </el-time-picker>
+                            <el-time-picker v-if='scope.row.type===2' value-format='HH:mm:ss' v-model="dutyData.duty.one.time" placeholder="时间" style="width:100%"></el-time-picker>
                             <template v-if='scope.row.type===3'>
                                 <el-radio v-model="dutyData.isOk" label="1">正常</el-radio>
                                 <el-radio v-model="dutyData.isOk" label="0">异常</el-radio>
                             </template>
-                            <el-input v-if='scope.row.type===4' type="textarea" :rows="4" placeholder="请输入内容" v-model="dutyData.notOkDesc">
-                            </el-input>
-                            <el-input v-if='scope.row.type===5' type="textarea" :rows="2" placeholder="请输入内容" v-model="dutyData.remark">
-                            </el-input>
+                            <el-input v-if='scope.row.type===4' type="textarea" :rows="4" placeholder="请输入异常描述" v-model="dutyData.notOkDesc"></el-input>
+                            <el-input v-if='scope.row.type===5' type="textarea" :rows="2" placeholder="请输入备注" v-model="dutyData.remark"></el-input>
                             <template v-if='scope.row.type===6'>
-                                <el-radio v-model="dutyData.shift" label="1">早班</el-radio>
-                                <el-radio v-model="dutyData.shift" label="0">晚班</el-radio>
+                                <el-radio v-model="dutyData.shift" label="1">白班</el-radio>
+                                <el-radio v-model="dutyData.shift" label="0">夜班</el-radio>
                             </template>
                         </template>
                 </el-table-column>

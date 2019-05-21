@@ -31,10 +31,13 @@
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" icon="el-icon-success" v-bind:disabled="scope.row.applyStatus === '1' || scope.row.applyStatus === '2'" @click="auditPass(scope.$index, scope.row)">通过</el-button>
-                        <el-button type="text" icon="el-icon-error" v-bind:disabled="scope.row.applyStatus === '2' || scope.row.applyStatus === '1'" class="red" @click="handleReject(scope.row)">驳回</el-button>
+                        <el-button type="text" icon="el-icon-error" v-bind:disabled="scope.row.applyStatus === '2' || scope.row.applyStatus === '1'" @click="handleReject(scope.row)">驳回</el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="pagination">
+                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="total" :page-size="pageSize"></el-pagination>
+            </div>
         </div>
 
         <!-- 驳回提示框 -->
@@ -79,6 +82,10 @@ export default {
         this.getData()
     },
     methods: {
+        handleCurrentChange(val) {
+            this.pageNum = val
+            this.getData()
+        },
         getData() {
             let postData = this.$qs.stringify({
                 pageNum: this.pageNum,
@@ -140,7 +147,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .red{
     color: #ff0000;
 }

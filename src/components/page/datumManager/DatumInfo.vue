@@ -14,28 +14,33 @@
                 </el-button-group>
             </div>
             <el-table border :data="data" class="table" ref="multipleTable" v-loading="loading">
-                <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="title" label="文件名称" width="250"></el-table-column>
+                <!-- <el-table-column type="selection" width="55" align="center"></el-table-column> -->
+                <el-table-column prop="title" label="文件名称"></el-table-column>
                 <el-table-column prop="size" label="文件大小"></el-table-column>
                 <el-table-column prop="type" label="文件类型"></el-table-column>
                 <el-table-column prop="uploadTime" label="上传时间" width="200"></el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
+                        <el-button type="text" icon="el-icon-view" @click="handlePreview(scope.$index, scope.row)">预览</el-button>
                         <el-button type="text" icon="el-icon-lx-down" @click="handleDownload(scope.$index, scope.row)">下载</el-button>
-                        <el-button type="text" icon="el-icon-lx-attention" @click="handlePreview(scope.$index, scope.row)">预览</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="pagination">
+                <el-pagination background @current-change="handleCurrentChange" layout="prev, pager, next" :total="total" :page-size="pageSize"></el-pagination>
+            </div>
         </div>
 
         <!-- 资料上传 -->
         <el-dialog title="资料上传" :visible.sync="uploadVisible" width="30%" center>
-            <el-upload class="upload-demo" action="/file/upload_file.json"
+            <el-upload class="upload-demo" action="/file/upload_file.json" style="text-align: center"
                 :on-remove="handleRemove" :on-success="uploadSuccess"
                 :before-remove="beforeRemove" multiple :limit="1"
                 :on-exceed="handleExceed" :file-list="fileList">
-                <el-button size="small" type="primary">点击上传</el-button>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                <!-- <el-button size="small" type="primary">点击上传</el-button> -->
                 <div slot="tip" class="el-upload__tip">只能上传word/excel/ppt/pdf文件，且不超过10M</div>
             </el-upload>
         </el-dialog>
@@ -98,6 +103,10 @@ export default {
         }
     },
     methods: {
+        handleCurrentChange(val) {
+            this.pageNum = val
+            this.getData()
+        },
         getData() {
             this.loading = true
             let postData = this.$qs.stringify({
@@ -112,6 +121,7 @@ export default {
                 if (res.data.success) {
                     let page = res.data.data
                     this.tableData = page.list
+                    console.log(this.tableData)
                     this.total = page.total
                     this.loading = false
                 } else {
@@ -195,7 +205,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .handle-box {
     margin-bottom: 20px;
 }

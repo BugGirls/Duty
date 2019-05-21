@@ -81,6 +81,7 @@ export default {
                 data: postData
             }).then((res) => {
                 if (res.data.success) {
+                    console.log(res.data.data)
                     let page = res.data.data
                     this.tableData = page.list
                     this.total = page.total
@@ -147,7 +148,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .table{
     width: 100%;
     font-size: 14px;

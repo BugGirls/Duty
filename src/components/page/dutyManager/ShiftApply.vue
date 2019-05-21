@@ -42,8 +42,8 @@
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" icon="el-icon-view" @click="handleShiftPreview(scope.row)">详情</el-button>
-                        <el-button type="text" icon="el-icon-edit" v-bind:disabled="scope.row.applyStatus !== '0'" @click="handleShiftEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" icon="el-icon-delete" v-bind:disabled="scope.row.applyStatus !== '0'" class="red" @click="handleShiftDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-edit" :disabled="scope.row.applyStatus !== '0' || !scope.row.updateBtnEdit" @click="handleShiftEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleShiftDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -414,7 +414,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .red{
     color: #ff0000;
 }

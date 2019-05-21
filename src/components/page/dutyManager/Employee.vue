@@ -8,12 +8,12 @@
         </div>
         <div class="container">
             <div class="handle-box">
-                <el-select v-model="select_type" placeholder="筛选状态" class="handle-select mr10">
+                <el-select v-model="select_type" placeholder="筛选状态" class="handle-select mr10" clearable>
                     <el-option key="name" label="姓名" value="name"></el-option>
                     <el-option key="mobile" label="手机号" value="mobile"></el-option>
                 </el-select>
-                <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10"></el-input>
-                <el-button type="primary" icon="el-icon-lx-search" @click="search">搜索</el-button>
+                <el-input v-model="select_word" placeholder="筛选关键词" class="handle-input mr10" clearable @change="search"></el-input>
+                <!-- <el-button type="primary" icon="el-icon-lx-search" @click="search">搜索</el-button> -->
                 <el-button-group>
                     <el-button type="primary" icon="el-icon-lx-add" @click="handleInsert()">新增人员</el-button>
                 </el-button-group>
@@ -41,8 +41,8 @@
                 </el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" v-show="scope.row.updateBtnShow" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" v-show="scope.row.deleteBtnShow" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button type="text" icon="el-icon-edit" :disabled="!scope.row.updateBtnEdit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" :disabled="!scope.row.deleteBtnEdit" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>

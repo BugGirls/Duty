@@ -10,13 +10,13 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      // '/':{
-      //     target:'http://localhost:8082',
-      //     changeOrigin:true,
-      //     pathRewrite:{
-      //         '/':''
-      //     }
-      // },
+      '/':{
+          target:'http://localhost:8082',
+          changeOrigin:true,
+          pathRewrite:{
+              '/':''
+          }
+      },
       '/card':{
         target:'http://172.20.0.23:8082/',
         changeOrigin:true,
@@ -27,12 +27,6 @@ module.exports = {
       '/':{
         target:'http://localhost:8082',
         changeOrigin:true,
-      },
-      
-
-      '/ms':{
-          target: 'https://www.easy-mock.com/mock/592501a391470c0ac1fab128',
-          changeOrigin: true
       }
     },
     // Various Dev Server settings

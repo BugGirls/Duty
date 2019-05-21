@@ -36,7 +36,7 @@
                             <span>提醒列表</span>
                             <el-button type="primary" style="float: right" icon="el-icon-lx-add" size="mini" @click="handleRemindInsert()">新建提醒</el-button>
                         </div>
-                        <el-table :data="remindList" :show-header="false" height="304" style="width: 100%;font-size:14px;">
+                        <el-table :data="remindList" :show-header="false" style="width: 100%;font-size:14px;">
                             <el-table-column width="40">
                                 <template slot-scope="scope">
                                     <el-checkbox v-model="scope.row.status" @change="changeStatus(scope.row)"></el-checkbox>
@@ -45,11 +45,14 @@
                             <el-table-column>
                                 <template slot-scope="scope">
                                     <div class="todo-item">
-                                        <span :class="{'todo-item-del': scope.row.status, 'el-60': true}">{{scope.row.title}}</span>
+                                        <span :class="{'todo-item-del': scope.row.status, 'el-50': true}">{{scope.row.title}}</span>
                                         <span style="float: right">提醒时间：{{scope.row.time}}</span>
                                         <span style="float: right; margin-right: 30px;">
                                             <el-tag type="success" v-if="scope.row.status === 0">未提醒</el-tag>
                                             <el-tag type="info" v-if="scope.row.status === 1">已提醒</el-tag>
+                                        </span>
+                                        <span style="float: right; margin-right: 30px;">
+                                            <el-tag>{{ scope.row.repetitionModeStr }}</el-tag>
                                         </span>
                                     </div>
                                 </template>
@@ -139,6 +142,18 @@
                     <el-date-picker v-model="remindForm.remindTime" format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm" type="datetime" placeholder="选择日期时间"></el-date-picker>
                 </el-form-item>
+                <el-form-item label="设置重复">
+                    <el-select v-model="remindForm.repetitionMode" placeholder="请选择">
+                        <el-option v-for="item in repetitionPeriodData" :key="item.key" :label="item.value" :value="item.key"></el-option>
+                    </el-select>
+                    <el-input-number v-if="remindForm.repetitionMode === '5'" v-model="remindForm.repetitionPeriod" :min="1" :max="10"></el-input-number>
+                    <el-select v-if="remindForm.repetitionMode === '5'" v-model="remindForm.repetitionMode2" placeholder="请选择" style="width: 100px;">
+                        <el-option value="1" label="天"></el-option>
+                        <el-option value="2" label="周"></el-option>
+                        <el-option value="3" label="月"></el-option>
+                        <el-option value="4" label="年"></el-option>
+                    </el-select>
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="insertRemindVisible = false">取 消</el-button>
@@ -161,12 +176,24 @@
                     <el-date-picker v-model="remindForm.remindTime" type="datetime" placeholder="选择日期时间" format="yyyy-MM-dd HH:mm"
                     value-format="yyyy-MM-dd HH:mm"></el-date-picker>
                 </el-form-item>
-                <el-form-item label="状态" prop="status">
+                <el-form-item label="设置重复">
+                    <el-select v-model="remindForm.repetitionMode" placeholder="请选择">
+                        <el-option v-for="item in repetitionPeriodData" :key="item.key" :label="item.value" :value="item.key"></el-option>
+                    </el-select>
+                    <el-input-number v-if="remindForm.repetitionMode === '5'" v-model="remindForm.repetitionPeriod" :min="1" :max="10"></el-input-number>
+                    <el-select v-if="remindForm.repetitionMode === '5'" v-model="remindForm.repetitionMode2" placeholder="请选择" style="width: 100px;">
+                        <el-option value="1" label="天"></el-option>
+                        <el-option value="2" label="周"></el-option>
+                        <el-option value="3" label="月"></el-option>
+                        <el-option value="4" label="年"></el-option>
+                    </el-select>
+                </el-form-item>
+                <!-- <el-form-item label="状态" prop="status">
                     <el-radio-group v-model="remindForm.status" size="small">
                         <el-radio label="1" border>已提醒</el-radio>
                         <el-radio label="0" border>未提醒</el-radio>
                     </el-radio-group>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="updateRemindVisible = false">取 消</el-button>
@@ -216,6 +243,9 @@ export default {
                 typeId: '',
                 reminder: '',
                 remindTime: '',
+                repetitionMode: '0',
+                repetitionMode2: '1',
+                repetitionPeriod: 1,
                 status: '1'
             },
             typeRules: {
@@ -233,7 +263,28 @@ export default {
                 remindTime: [
                     { required: true, message: '请选择提醒时间', trigger: 'blur' }
                 ]
-            }
+            },
+            // 重复周期数据
+            repetitionPeriodData: [{
+                    key: '0',
+                    value: '不重复'
+                },{
+                    key: '1',
+                    value: '每天'
+                },{
+                    key: '2',
+                    value: '每周'
+                },{
+                    key: '3',
+                    value: '每月'
+                },{
+                    key: '4',
+                    value: '每年'
+                },{
+                    key: '5',
+                    value: '自定义'
+                }
+            ]
         }
     },
     mounted() {
@@ -387,7 +438,7 @@ export default {
             }).then((res) => {
                 if (res.data.success) {
                     var page = res.data.data
-                    console.log(page)
+                    console.log(page.list)
                     this.total = page.total
                     this.remindList = []
 
@@ -426,6 +477,9 @@ export default {
                 typeId: this.remindForm.typeId,
                 reminder: '',
                 remindTime: '',
+                repetitionMode: '0',
+                repetitionMode2: '1',
+                repetitionPeriod: 1,
                 status: '1'
             }
         },
@@ -435,7 +489,9 @@ export default {
                     let postData = this.$qs.stringify({
                         typeId: this.remindForm.typeId,
                         reminder: this.remindForm.reminder,
-                        remindTime: this.remindForm.remindTime
+                        remindTime: this.remindForm.remindTime,
+                        repetitionMode: this.remindForm.repetitionMode === '5' ? this.remindForm.repetitionMode2 : this.remindForm.repetitionMode,
+                        repetitionPeriod: this.remindForm.repetitionMode === '5' ? this.remindForm.repetitionPeriod : this.remindForm.repetitionMode === '0' ? 0 : 1
                     })
                     this.$axios({
                         method: 'post',
@@ -462,12 +518,14 @@ export default {
                 typeId: row.typeId,
                 reminder: row.reminder,
                 remindTime: row.remindTime,
+                repetitionMode: row.repetitionMode > 0 ? row.repetitionPeriod > 1 ? '5' : row.repetitionMode.toString() : '0',
+                repetitionMode2: row.repetitionMode.toString(),
+                repetitionPeriod: row.repetitionPeriod,
                 status: row.status.toString()
             }
             this.updateRemindVisible = true
         },
         remindUpdate(form) {
-            console.log(this.remindForm)
             this.$refs[form].validate((valid) => {
                 if (valid) {
                     let postData = this.$qs.stringify({
@@ -475,7 +533,8 @@ export default {
                         typeId: this.remindForm.typeId,
                         reminder: this.remindForm.reminder,
                         remindTime: this.remindForm.remindTime,
-                        status: this.remindForm.status
+                        repetitionMode: this.remindForm.repetitionMode === '5' ? this.remindForm.repetitionMode2 : this.remindForm.repetitionMode,
+                        repetitionPeriod: this.remindForm.repetitionMode === '5' ? this.remindForm.repetitionPeriod : this.remindForm.repetitionMode === '0' ? 0 : 1
                     })
                     this.$axios({
                         method: 'post',
@@ -523,7 +582,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .custom-tree-node {
     flex: 1;
     display: flex;

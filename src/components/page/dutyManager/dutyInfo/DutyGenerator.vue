@@ -56,15 +56,13 @@ export default {
                 {
                     timer: 1,
                     value: '0:00-8:30'
-                },
-                {
+                },{
                     timer: 2,
-                    value: '8:30-24:00'
-                },
-                // {
-                //     timer: 3,
-                //     value: '18:00-0:00'
-                // }
+                    value: '8:30-18:00'
+                },{
+                    timer: 3,
+                    value: '18:00-24:00'
+                }
             ],
             tableData: [
                 {
@@ -135,9 +133,9 @@ export default {
                 ...data.two1,
                 ...data.two2,
                 ...data.two3,
-                // ...data.three1,
-                // ...data.three2,
-                // ...data.three3,
+                ...data.three1,
+                ...data.three2,
+                ...data.three3,
                 ...data.rest
             ]
             let options = this.options
@@ -159,9 +157,9 @@ export default {
                 two1,
                 two2,
                 two3,
-                // three1,
-                // three2,
-                // three3,
+                three1,
+                three2,
+                three3,
                 rest
             } = data
             if (
@@ -171,9 +169,9 @@ export default {
                 two1.length == 0 ||
                 two2.length == 0 ||
                 two3.length == 0 ||
-                // three1.length == 0 ||
-                // three2.length == 0 ||
-                // three3.length == 0 ||
+                three1.length == 0 ||
+                three2.length == 0 ||
+                three3.length == 0 ||
                 rest.length == 0
             ) {
                 return false
@@ -195,9 +193,9 @@ export default {
                 two1: [],
                 two2: [],
                 two3: [],
-                // three1: [],
-                // three2: [],
-                // three3: [],
+                three1: [],
+                three2: [],
+                three3: [],
                 rest: []
             }
             this.tableData = [...this.tableData, newRow]
@@ -378,7 +376,3 @@ export default {
     }
 }
 </script>
-    
-<style>
-
-</style>
