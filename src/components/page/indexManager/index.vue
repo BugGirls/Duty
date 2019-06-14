@@ -202,7 +202,7 @@ export default {
     mounted() {
         this.isLogbookByCurrentShift()
         this.loadUserInfo()
-        this.loadCurrentDateDuty()
+        // this.loadCurrentDateDuty()
         this.loadCurrentShiftSignInList()
         this.loadCurrentDateRemind()
         this.loadLogbookList()
@@ -217,17 +217,17 @@ export default {
             }
         },
         // 加载当前时间的值班表
-        loadCurrentDateDuty() {
-            this.tableList = []
-            this.$axios('/dutyInfo/get_detail_by_now.json').then((res) => {
-                if (res.data.success) {
-                    this.tableList = []
-                    this.tableList.push(res.data.data)
-                } else {
-                    this.$message.error(` ${res.data.msg} `)
-                }
-            })
-        },
+        // loadCurrentDateDuty() {
+        //     this.tableList = []
+        //     this.$axios('/dutyInfo/get_detail_by_now.json').then((res) => {
+        //         if (res.data.success) {
+        //             this.tableList = []
+        //             this.tableList.push(res.data.data)
+        //         } else {
+        //             this.$message.error(` ${res.data.msg} `)
+        //         }
+        //     })
+        // },
         // 加载当前班次签到人员列表
         loadCurrentShiftSignInList() {
             this.dutyList = []

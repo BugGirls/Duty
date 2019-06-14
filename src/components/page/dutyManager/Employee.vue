@@ -33,6 +33,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="mobile" label="手机号"></el-table-column>
+                <el-table-column prop="cardNum" label="员工编号"></el-table-column>
                 <el-table-column prop="status" label="状态">
                     <template slot-scope="scope">
                         <el-tag v-show="scope.row.status === '1'">正常</el-tag>
@@ -69,6 +70,9 @@
                 <el-form-item label="手机号" prop="mobile">
                     <el-input v-model="form.mobile"></el-input>
                 </el-form-item>
+                <el-form-item label="员工编号" prop="cardNum">
+                    <el-input v-model="form.cardNum"></el-input>
+                </el-form-item>
                 <el-form-item label="状态" prop="status">
                     <el-radio-group v-model="form.status" size="small">
                         <el-radio label="1" border>正常</el-radio>
@@ -100,6 +104,9 @@
                 </el-form-item>
                 <el-form-item label="手机号" prop="mobile">
                     <el-input v-model="form.mobile"></el-input>
+                </el-form-item>
+                <el-form-item label="员工编号" prop="cardNum">
+                    <el-input v-model="form.cardNum"></el-input>
                 </el-form-item>
                 <el-form-item label="状态" prop="status">
                     <el-radio-group v-model="form.status" size="small">
@@ -154,6 +161,7 @@
                     name: '',
                     gender: '',
                     mobile: '',
+                    cardNum: '',
                     status: ''
                 },
                 rules: {
@@ -163,6 +171,9 @@
                     ],
                     mobile: [
                         { required: true, message: '请输入手机号', trigger: 'blur' }
+                    ],
+                    cardNum: [
+                        { required: true, message: '请输入员工编号', trigger: 'blur' }
                     ]
                 }
             }
@@ -233,6 +244,7 @@
                     name: item.name,
                     gender: item.gender.toString(),
                     mobile: item.mobile,
+                    cardNum: item.cardNum,
                     status: item.status.toString()
                 }
                 this.editVisible = true
@@ -254,6 +266,7 @@
                             name: this.form.name,
                             gender: this.form.gender,
                             mobile: this.form.mobile,
+                            cardNum: this.form.cardNum,
                             status: this.form.status
                         })
                         this.$axios({
@@ -285,6 +298,7 @@
                             name: this.form.name,
                             gender: this.form.gender,
                             mobile: this.form.mobile,
+                            cardNum: this.form.cardNum,
                             status: this.form.status
                         })
                         this.$axios({

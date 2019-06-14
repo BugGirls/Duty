@@ -64,7 +64,7 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="signInVisible = false">取 消</el-button>
-                <el-button type="primary" @click="signIn('form')">签 到</el-button>
+                <el-button type="primary" @click="signIn()">签 到</el-button>
             </span>
         </el-dialog>
     </div>
@@ -103,26 +103,26 @@ export default {
         this.loadEmployeeSelect()
         this.loadNextShiftSignInList()
     },
-    computed: {
-        cardNum:function() {
-            let num = this.employeeNumber
-            let card = ''
-            let len = num.length
+    // computed: {
+    //     cardNum:function() {
+    //         let num = this.employeeNumber
+    //         let card = ''
+    //         let len = num.length
             
-            if (len > 0 && len % 8 === 0) {
-                card = num.substring(len-8)
-                this.employeeNumber = card
-            }
-            return card
-        }
-    },
-    watch:{
-        cardNum:function(newVal,oldVal) {
-            if(newVal !== oldVal) {
-                this.loadSlotCardEmployee()
-            }
-        }
-    },
+    //         if (len > 0 && len % 8 === 0) {
+    //             card = num.substring(len-8)
+    //             this.employeeNumber = card
+    //         }
+    //         return card
+    //     }
+    // },
+    // watch:{
+    //     cardNum:function(newVal,oldVal) {
+    //         if(newVal !== oldVal) {
+    //             this.loadSlotCardEmployee()
+    //         }
+    //     }
+    // },
     methods: {
         // 加载当前班次签到人员列表
         loadCurrentShiftSignInList() {
@@ -205,21 +205,21 @@ export default {
                 }
             })
         },
-        // 加载刷卡的员工信息
-        loadSlotCardEmployee() {
-            this.$axios('http://172.20.0.12:8083/loginapi/askLogin.do?identifier=' + this.employeeNumber).then((res)=>{
-                if (res.status == 200) {
-                    var detail = JSON.parse(res.data.s)
-                    this.name = detail.fConsumername
-                    this.photoUrl = detail.fPhotoaddr
-                }
-            })
-        },
+        // // 加载刷卡的员工信息
+        // loadSlotCardEmployee() {
+        //     this.$axios('http://172.20.0.12:8083/loginapi/askLogin.do?identifier=' + this.employeeNumber).then((res)=>{
+        //         if (res.status == 200) {
+        //             var detail = JSON.parse(res.data.s)
+        //             this.name = detail.fConsumername
+        //             this.photoUrl = detail.fPhotoaddr
+        //         }
+        //     })
+        // },
         // 点击签到
         handleSignIn(item) {
             this.employeeNumber = ''
-            this.name = ''
-            this.photoUrl = ''
+            this.name = item.name
+            this.photoUrl = item.img
             this.signInVisible = true
             setTimeout(() => {
                 this.$refs.card.focus()
@@ -232,15 +232,18 @@ export default {
         signIn() {
             let postData = this.$qs.stringify({
                 id: this.signInForm.signInId,
-                employeeName: this.name
+                employeeName: this.name,
+                cardNum: this.employeeNumber
             })
             this.$axios({
                 method: 'post',
                 url: '/signInInfo/signIn.json',
                 data: postData
             }).then((res) => {
+                console.log(res)
                 if (res.data.success) {
                     this.loadCurrentShiftSignInList()
+                    this.loadNextShiftSignInList()
                     this.signInVisible = false
                     this.$message.success(` 签到成功 `)
                 } else {
