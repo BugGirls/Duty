@@ -15,7 +15,7 @@
     "file-saver": "^2.0.0",
     "js-base64": "^2.4.9",
     "js-md5": "^0.7.3",
-    "mavon-editor": "^2.5.4",
+    "mavon-editor": "^2.8.2",
     "moment": "^2.23.0",
     "vue": "^2.5.16",
     "vue-cropperjs": "^2.2.0",
